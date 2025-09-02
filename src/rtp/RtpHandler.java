@@ -403,13 +403,15 @@ public class RtpHandler {
         }
         if (lost) statistics.framesPartLost++;
         playbackIndex = snLast;
+        logger.log(Level.FINER, "PLAY: list size: " + packetList.size() );
         return packetList;
     }
 
     private RtpPacket obtainMediaPacket(final int number) {
         int index = number % 0x10000; // account overflow of SNr (16 Bit)
         RtpPacket packet = mediaPackets.get(index);
-        logger.log(Level.FINER, "PLAY: try get RTP nr: " + index);
+        String ack = (packet == null) ? "Lost" : "";
+        logger.log(Level.FINER, "PLAY: try get RTP nr: " + index + " " + ack);
         return packet;
     }
 
