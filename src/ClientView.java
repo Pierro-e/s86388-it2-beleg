@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import rtp.RtpHandler;
 
 public class ClientView  {
   JFrame f = new JFrame("Client");
@@ -48,11 +47,7 @@ public class ClientView  {
   ButtonGroup encryptionButtons = null;
 
   Client.ButtonListener client;
-  //RtpHandler rtpHandler;
 
-  //public void setRtpHandler(RtpHandler rtpHandler) {
-  //  this.rtpHandler = rtpHandler;
-  //}
   public ClientView(Client.ButtonListener client) {
      this.client = client;
     initView();
@@ -150,8 +145,6 @@ public class ClientView  {
 
     encryptionButtons = new ButtonGroup();
     JRadioButton e_none = new JRadioButton("keine");
-    // TODO Handler für RadioButtons prüfen
-    //e_none.addItemListener(this::radioButtonSelected);
     e_none.addActionListener( client );
     encryptionButtons.add(e_none);
     e_none.setSelected(true);

@@ -1,10 +1,3 @@
-/* ------------------
-Client
-usage: java Client [Server hostname] [Server RTSP listening port] [Video file requested]
-
-
----------------------- */
-
 import java.awt.image.BufferedImage;
 import java.net.*;
 import java.text.DecimalFormat;
@@ -18,7 +11,6 @@ import rtp.ReceptionStatistic;
 import rtp.RtpHandler;
 import rtsp.Rtsp;
 import utils.CustomLoggingHandler;
-import java.awt.Image;
 
 public class Client  {
   int iteration = 0;  // for displaying statistics
@@ -52,14 +44,11 @@ public class Client  {
      */
     logger.setLevel(Level.FINER);
 
-    //rtpHandler = new RtpHandler(false);       // init RTP handler
-
     Client theClient = new Client();  // Create a Client object
 
     // get the URL from the command line and show it in the GUI
     theClient.view.textField.setText(argv[0]);
     theClient.view.pufferNumber.setText(JITTER_BUFFER_SIZE.toString());
-    //theClient.view.setRtpHandler(rtpHandler);
   }
 
 
