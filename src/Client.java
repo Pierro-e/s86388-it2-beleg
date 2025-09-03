@@ -142,6 +142,12 @@ public class Client  {
           view.mainPanel.getRootPane().setDefaultButton(view.setupButton);
           view.setupButton.requestFocus();
           break;
+        case "nutze FEC":
+          if (rtsp != null && (rtsp.getState() == Rtsp.State.READY || rtsp.getState() == Rtsp.State.PLAYING )) {
+            logger.log(Level.INFO, view.checkBoxFec.isSelected() ? "FEC on" : "FEC off");
+            rtpHandler.setFecDecryptionEnabled(view.checkBoxFec.isSelected());
+          }
+          break;
       }
     }
   }

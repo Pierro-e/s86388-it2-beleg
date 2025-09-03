@@ -80,6 +80,7 @@ public class ClientView  {
     tearButton.addActionListener( client);
     optionsButton.addActionListener( client);
     describeButton.addActionListener( client);
+    checkBoxFec.addActionListener( client);
     iconLabel.setIcon(null);     // Image display label
 
     // ***************** Statistic Panel ***************

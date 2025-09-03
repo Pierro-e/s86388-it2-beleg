@@ -48,7 +48,12 @@ abstract class RtspDemo {
   }
   double duration = 0.0;  // duration of the video (given by the RTSP Server via SDP)
   final static int videoLength = 112;  // => 2008 frames, Demovideo htw.mjpeg, no metadata in MJPEG
-  enum State {INIT, READY, PLAYING}  // RTSP states
+  public enum State {INIT, READY, PLAYING}  // RTSP states
+
+  public State getState() {
+    return state;
+  }
+
   State state;
   static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
