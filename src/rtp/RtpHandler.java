@@ -116,17 +116,11 @@ public class RtpHandler {
         statistics = new ReceptionStatistic();
     }
 
+    // only for server side
     public void reset() {
         currentSeqNb = 0;
-        //fecHandler.reset();
-        playbackIndex = -1;  // Client
         dropCounter = 0;
 
-        if (!isServer) {
-            //mediaPackets.clear();
-            //sameTimestamps.clear();
-            statistics = new ReceptionStatistic();
-        }
     }
 
     // ********************************** Server side ***************************************
@@ -608,7 +602,6 @@ public class RtpHandler {
             default:  // ignore unknown packet
         }
 
-        // TASK remove comment for debugging
         packet.printheader(); // print rtp header bitstream for debugging
     }
 

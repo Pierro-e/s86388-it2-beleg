@@ -25,7 +25,7 @@ public class Client  {
   Timer timerPlay; // timer used to display the frames at the correct frame rate
   ClientView view;
   // ******************** RTP variables: *****************************
-  private static RtpHandler rtpHandler;
+  private RtpHandler rtpHandler;
   static int RTP_RCV_PORT = 25000; // port where the client will receive the RTP packets
   // static int FEC_RCV_PORT = 25002; // port where the client will receive the RTP packets
   final static Integer JITTER_BUFFER_SIZE = 10; // size of the buffer in frames
@@ -52,14 +52,14 @@ public class Client  {
      */
     logger.setLevel(Level.FINER);
 
-    rtpHandler = new RtpHandler(false);       // init RTP handler
+    //rtpHandler = new RtpHandler(false);       // init RTP handler
 
     Client theClient = new Client();  // Create a Client object
 
     // get the URL from the command line and show it in the GUI
     theClient.view.textField.setText(argv[0]);
     theClient.view.pufferNumber.setText(JITTER_BUFFER_SIZE.toString());
-    theClient.view.setRtpHandler(rtpHandler);
+    //theClient.view.setRtpHandler(rtpHandler);
   }
 
 
@@ -89,6 +89,7 @@ public class Client  {
           rtsp.setUrl(view.textField.getText());
 
           if (rtsp.setup()) {
+            rtpHandler = new RtpHandler(false);       // init RTP handler
             // set jitter buffer size
             rtpHandler.setJitterBufferStartSize(Integer.parseInt(view.pufferNumber.getText()));
             rtpHandler.startReceiver(RTP_RCV_PORT);
@@ -124,10 +125,8 @@ public class Client  {
           if (rtsp.teardown()) {
             view.statusLabel.setText("INIT ");
             view.progressPosition.setValue(0);
-            rtpHandler.reset();
-            rtpHandler.stopReceiver();
+            rtpHandler.stopReceiver();                  // close port
             timerPlay.stop();
-            //TODO RTPs löschen für Statistik
           }
           break;
         case "Options":

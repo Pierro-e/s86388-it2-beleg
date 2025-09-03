@@ -48,11 +48,11 @@ public class ClientView  {
   ButtonGroup encryptionButtons = null;
 
   Client.ButtonListener client;
-  RtpHandler rtpHandler;
+  //RtpHandler rtpHandler;
 
-  public void setRtpHandler(RtpHandler rtpHandler) {
-    this.rtpHandler = rtpHandler;
-  }
+  //public void setRtpHandler(RtpHandler rtpHandler) {
+  //  this.rtpHandler = rtpHandler;
+  //}
   public ClientView(Client.ButtonListener client) {
      this.client = client;
     initView();
