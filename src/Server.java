@@ -223,9 +223,6 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
 
       if (connection) switch (request_type) {
         case SETUP:
-          state = READY;
-          stateLabel.setText("READY");
-          logger.log(Level.INFO, "New RTSP state: READY");
           // TODO
           if (theServer.videoMeta == null) {
             theServer.videoMeta = VideoMetadata.getVideoMetadata(VideoDir, theServer.rtsp.getVideoFileName() );
@@ -237,6 +234,13 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
             webcam.setViewSize(new Dimension(640,480));
             webcam.open();
           } else { // File
+            // check for file existence
+            File f = new File(VideoDir + theServer.rtsp.getVideoFileName());
+            if (!f.isFile() || !f.exists()) {
+              logger.log(Level.INFO, "File not found");
+              theServer.rtsp.send_RTSP_error_response("404 file not found");
+              break;
+            }
             theServer.video = new VideoReader( VideoDir + theServer.rtsp.getVideoFileName() );
           }
 
@@ -244,6 +248,10 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
           theServer.timer = new Timer(1000 / theServer.videoMeta.getFramerate(), theServer);
           theServer.timer.setInitialDelay(0);
           theServer.timer.setCoalesce(false); // Coalesce can lead to buffer underflow in client
+
+          state = READY;
+          stateLabel.setText("READY");
+          logger.log(Level.INFO, "New RTSP state: READY");
 
           theServer.rtsp.send_RTSP_response(SETUP, RTSPsocket.getLocalPort() );
           imagenb = 0;
@@ -288,6 +296,14 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
 
         case DESCRIBE:
           logger.log(Level.INFO, "DESCRIBE Request");
+          // check for file existence
+          File f = new File(VideoDir + theServer.rtsp.getVideoFileName());
+          if (!f.isFile() || !f.exists()) {
+            logger.log(Level.INFO, "File not found");
+            theServer.rtsp.send_RTSP_error_response("404 file not found");
+            break;
+          }
+
           theServer.videoMeta = VideoMetadata.getVideoMetadata(VideoDir, theServer.rtsp.getVideoFileName() );
           theServer.rtsp.setVideoMeta(theServer.videoMeta);
           logger.log(Level.INFO, "Video Meta: " + theServer.videoMeta.toString());

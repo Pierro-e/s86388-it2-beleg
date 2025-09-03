@@ -152,8 +152,9 @@ abstract class RtspDemo {
     send_RTSP_request("SETUP");
     // Wait for the response
     logger.log(Level.INFO, "Wait for response...");
-    if (parse_server_response() != 200) {
-      logger.log(Level.WARNING, "Invalid Server Response");
+    int code = parse_server_response();
+    if (code == 404) {
+      logger.log(Level.WARNING, "File not found");
       return false;
     } else {
       state = State.READY;
@@ -265,7 +266,7 @@ abstract class RtspDemo {
     }
 
     if (reply_code != 200) {
-      logger.log(Level.WARNING, "Invalid Server Response");
+      logger.log(Level.WARNING, "Invalid Server Response: " + reply_code);
     }
     return (reply_code);
   }
@@ -472,6 +473,24 @@ abstract class RtspDemo {
       if (method != DESCRIBE) RTSPBufferedWriter.write(CRLF);
       RTSPBufferedWriter.flush();
       logger.log(Level.FINE, "*** RTSP-Server - Sent response to Client ***");
+
+    } catch (Exception ex) {
+      ex.printStackTrace();
+      logger.log(Level.SEVERE, "Exception caught: " + ex);
+      System.exit(0);
+    }
+  }
+
+  public void send_RTSP_error_response(String code) {
+    logger.log(Level.WARNING, "*** send RTSP-Response Error ***");
+    try {
+      RTSPBufferedWriter.write("RTSP/1.0 " + code + CRLF);
+      RTSPBufferedWriter.write("CSeq: " + RTSPSeqNb + CRLF);
+      RTSPBufferedWriter.write(CRLF);
+      RTSPBufferedWriter.flush();
+      logger.log(Level.FINE, "*** RTSP-Server - Sent error response to Client ***");
+
+
 
     } catch (Exception ex) {
       ex.printStackTrace();
