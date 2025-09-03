@@ -34,7 +34,6 @@ public class Client  {
   private static Rtsp rtsp;
   private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
-
   public Client() {
     view = new ClientView( new ButtonListener()  );
   }
@@ -53,16 +52,14 @@ public class Client  {
      */
     logger.setLevel(Level.FINER);
 
-    URI url = new URI(argv[0]);
     rtpHandler = new RtpHandler(false);       // init RTP handler
 
     Client theClient = new Client();  // Create a Client object
 
-    theClient.view.textField.setText(url.toString());
+    // get the URL from the command line and show it in the GUI
+    theClient.view.textField.setText(argv[0]);
     theClient.view.pufferNumber.setText(JITTER_BUFFER_SIZE.toString());
     theClient.view.setRtpHandler(rtpHandler);
-
-    rtsp = new Rtsp(url, RTP_RCV_PORT);
   }
 
 
@@ -78,6 +75,16 @@ public class Client  {
       }
 
       switch (cmd) { // depending on the pressed button
+        case "Connect":
+          view.statusLabel.setText("CONNECT ");
+          try {
+            rtsp = new Rtsp(new URI(view.textField.getText()), RTP_RCV_PORT);
+          } catch (URISyntaxException ex) {
+            throw new RuntimeException(ex);
+          }
+          view.mainPanel.getRootPane().setDefaultButton(view.optionsButton);
+          view.optionsButton.requestFocus();
+          break;
         case "Setup":
           rtsp.setUrl(view.textField.getText());
 
@@ -125,6 +132,8 @@ public class Client  {
           break;
         case "Options":
           rtsp.options();
+          view.mainPanel.getRootPane().setDefaultButton(view.describeButton);
+          view.describeButton.requestFocus();
           break;
         case "Describe":
           rtsp.setUrl(view.textField.getText());

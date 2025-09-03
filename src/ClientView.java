@@ -73,6 +73,7 @@ public class ClientView  {
     buttonPanel.add(playButton);
     buttonPanel.add(pauseButton);
     buttonPanel.add(tearButton);
+    connectButton.addActionListener( client);
     setupButton.addActionListener( client);
     playButton.addActionListener( client);
     pauseButton.addActionListener( client);
@@ -128,8 +129,9 @@ public class ClientView  {
     f.setSize(new Dimension(640, 860));
     f.setVisible(true);
 
-    mainPanel.getRootPane().setDefaultButton(describeButton);
-    describeButton.requestFocus();
+    // set default button
+    mainPanel.getRootPane().setDefaultButton(connectButton);
+    connectButton.requestFocus();
   }
 
 
