@@ -227,7 +227,7 @@ public class FecPacket extends RtpPacket {
   @Override
   public byte[] getpacket() {
     Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    logger.log(Level.FINER, "FEC packet: " + payload_size + " " + payload.length);
+    log.finer( "FEC packet: " + payload_size + " " + payload.length);
     byte[] packet = new byte[payload_size + headerAll];
     setRtpHeader(); // set RTP Header again because of changing time stamp
     // RTP Header from array
@@ -350,11 +350,11 @@ public class FecPacket extends RtpPacket {
    */
   public void printHeaders() {
     Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    logger.log(Level.FINER, "FEC-Header");
+    log.finer( "FEC-Header");
     printheader(FEC_HEADER_SIZE, fecHeader);
-    logger.log(Level.FINER, "FEC-Level-Header");
+    log.finer( "FEC-Level-Header");
     printheader(ulpLevelHeader.length, ulpLevelHeader);
-    logger.log(Level.FINER, "FEC-Payload");
+    log.finer( "FEC-Payload");
     printheader(3, payload);
   }
 }

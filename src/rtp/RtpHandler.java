@@ -79,7 +79,7 @@ public class RtpHandler {
     private Receiver receiver = null;           // RTP receiver thread
 
     private Boolean isServer;
-    static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     /**
      * Create a new rtp.RtpHandler as server.
@@ -95,7 +95,7 @@ public class RtpHandler {
         try {
             RTPsocket = new DatagramSocket();
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "Exception caught: " + e);
+            log.severe( "Exception caught: " + e);
         }
 
     }
@@ -228,7 +228,7 @@ public class RtpHandler {
 
             if (fecEncodingEnabled) fecHandler.setRtp(rtpPacket);
             if (isFecPacketAvailable()) {
-                logger.log(Level.FINE, "FEC-Encoder ready...");
+                log.fine( "FEC-Encoder ready...");
                 byte[] fecPacket = createFecPacket();
                 // send to the FEC dest_port
                 sendDp = new DatagramPacket(fecPacket, fecPacket.length, clientIp, clientPort);
@@ -246,7 +246,7 @@ public class RtpHandler {
         if (fec) label = " rtp ";
         else label = " media ";
         if (random.nextDouble() > lossRate) {
-            logger.log(Level.FINE, "Send frame: " + label + " size: " + senddp.getLength());
+            log.fine( "Send frame: " + label + " size: " + senddp.getLength());
           try {
             RTPsocket.send(senddp);
           } catch (IOException e) {
@@ -254,7 +254,7 @@ public class RtpHandler {
           }
         } else {
             if (!fec) dropCounter++;
-            logger.log(Level.INFO, "Dropped frame: " + label + "Counter: " + dropCounter);
+            log.info( "Dropped frame: " + label + "Counter: " + dropCounter);
         }
     }
 
@@ -285,7 +285,7 @@ public class RtpHandler {
     public byte[] nextPlaybackImage() {
         // Check if jitter buffer is filled
         if (tsReceive <= tsStart + jitterBufferStartSize * tsAdd ) {
-            logger.log(Level.FINE, "PLAY: jitter buffer not filled: " + tsReceive + " " + tsStart);
+            log.fine( "PLAY: jitter buffer not filled: " + tsReceive + " " + tsStart);
             return null;
         }
 
@@ -297,15 +297,15 @@ public class RtpHandler {
 
         ArrayList<RtpPacket> packetList = packetsForNextImage();
         if (packetList == null) {
-            logger.log(Level.FINE, "PLAY: no RTPs for playback  TS : " + tsIndex + " " + playbackIndex);
+            log.fine( "PLAY: no RTPs for playback  TS : " + tsIndex + " " + playbackIndex);
             return null;
-        } else logger.log(Level.FINE, "PLAY: RTP list size for rtp: " +playbackIndex + " " + packetList.size());
+        } else log.fine( "PLAY: RTP list size for rtp: " +playbackIndex + " " + packetList.size());
 
         if (packetList.get(0) == null || packetList.get(packetList.size()-1) == null ) {
-            logger.log(Level.WARNING, "Nullpointer -> Check!");
+            log.warning( "Nullpointer -> Check!");
             return null;
         }   
-        logger.log(Level.FINER, "PLAY: get RTPs from " + packetList.get(0).getsequencenumber()
+        log.finer( "PLAY: get RTPs from " + packetList.get(0).getsequencenumber()
             + " to " + packetList.get(packetList.size()-1).getsequencenumber());
 
         // Combine RTP packets to one JPEG image
@@ -316,7 +316,7 @@ public class RtpHandler {
         byte[] image =  jpegs.getJpeg();
 
 
-        logger.log(Level.FINER, "Display TS: "
+        log.finer( "Display TS: "
                 + (packetList.get(0).gettimestamp() & 0xFFFFFFFFL)
                 + " size: " + image.length);
 
@@ -362,7 +362,7 @@ public class RtpHandler {
         // TODO error correction of first packet desirable
         if ( firstRtp.get(tsIndex) == null) {   // no RTPs with this TS
 
-            logger.log(Level.FINER, "PLAY: no firstRTP with this TS: " + tsIndex);
+            log.finer( "PLAY: no firstRTP with this TS: " + tsIndex);
             statistics.framesLost++;        // full frame is lost
             return null;
         } else snFirst = firstRtp.get(tsIndex);
@@ -384,7 +384,7 @@ public class RtpHandler {
         }
 
         lostJpegSlices = new ArrayList<>(); // List of missing RTPs (JPEG slices)
-        logger.log(Level.FINER, "PLAY: get RTPs from " + snFirst + " to " + snLast);
+        log.finer( "PLAY: get RTPs from " + snFirst + " to " + snLast);
         boolean lost = false;
         for (int i = snFirst+1; i <= snLast; i++) {
             packet = obtainMediaPacket(i);
@@ -396,7 +396,7 @@ public class RtpHandler {
         }
         if (lost) statistics.framesPartLost++;
         playbackIndex = snLast;
-        logger.log(Level.FINER, "PLAY: list size: " + packetList.size() );
+        log.finer( "PLAY: list size: " + packetList.size() );
         return packetList;
     }
 
@@ -404,7 +404,7 @@ public class RtpHandler {
         int index = number % 0x10000; // account overflow of SNr (16 Bit)
         RtpPacket packet = mediaPackets.get(index);
         String ack = (packet == null) ? "Lost" : "";
-        logger.log(Level.FINER, "PLAY: try get RTP nr: " + index + " " + ack);
+        log.finer( "PLAY: try get RTP nr: " + index + " " + ack);
         return packet;
     }
 
@@ -419,20 +419,20 @@ public class RtpHandler {
     private RtpPacket checkMediaPacket(final int number) {
         int index = number % 0x10000; // account overflow of SNr (16 Bit)
         RtpPacket packet = mediaPackets.get(index);
-        logger.log(Level.FINER, "RTP: try get RTP nr: " + index);
+        log.finer( "RTP: try get RTP nr: " + index);
 
         if (packet == null) {
             statistics.packetsLost++;
-            logger.log(Level.WARNING, "RTP: Media lost: " + index);
+            log.warning( "RTP: Media lost: " + index);
 
             boolean fecCorrectable = fecHandler.checkCorrection(index, mediaPackets);
             if (fecDecodingEnabled && fecCorrectable) {
                 packet = fecHandler.correctRtp(index, mediaPackets);
                 statistics.correctedPackets++;
-                logger.log(Level.INFO, "---> FEC: correctable: " + index);
+                log.info( "---> FEC: correctable: " + index);
             } else {
                 statistics.notCorrectedPackets++;
-                logger.log(Level.INFO, "---> FEC: not correctable: " + index);
+                log.info( "---> FEC: not correctable: " + index);
                 return null;
             }
         }
@@ -447,7 +447,7 @@ public class RtpHandler {
     }
 
     public void stopReceiver() {
-        logger.log(Level.FINE, "RTP-Receiver try stopping...");
+        log.fine( "RTP-Receiver try stopping...");
         receiver.interrupt();
         receiver.rtpSocket.close();
     }
@@ -461,7 +461,7 @@ public class RtpHandler {
             super("RTP-Receiver");
           try {
             rtpSocket = new DatagramSocket( port );
-            logger.log(Level.FINE, "Socket receive buffer: " + rtpSocket.getReceiveBufferSize());
+            log.fine( "Socket receive buffer: " + rtpSocket.getReceiveBufferSize());
           } catch (SocketException e) {
             throw new RuntimeException(e);
           }
@@ -477,17 +477,17 @@ public class RtpHandler {
                     if (packet.getpayloadtype() == RTP_PAYLOAD_JPEG) {
                         lastSeqNr = packet.getsequencenumber();
                     }
-                    logger.log(Level.FINER, "RTP: received: " + lastSeqNr);
+                    log.finer( "RTP: received: " + lastSeqNr);
                     processRtpPacket(packet, false);
 
                     // look for missing RTPs
                     for (int i = fecIndex; i < lastSeqNr - fecHandler.getFecGroupSize()-5; i++) {
                         if (mediaPackets.get(i) == null) {
                             //statistics.packetsLost++;
-                            //logger.log(Level.FINER, "RTP: Media lost: " + i);
+                            //log.finer( "RTP: Media lost: " + i);
                             RtpPacket rtp = checkMediaPacket(i);
                             if (rtp != null) {
-                                //logger.log(Level.FINER, "RTP: Media corrected: " + i);
+                                //log.finer( "RTP: Media corrected: " + i);
                                 processRtpPacket(rtp, true);
                             }
 
@@ -498,14 +498,14 @@ public class RtpHandler {
                     if (newfec > fecIndex) fecIndex = newfec;
                 } catch (IOException e) {    // SocketException is part of IOException
                     if (interrupted()) {
-                        logger.log(Level.FINE, "RTP-Receiver interrupted");
+                        log.fine( "RTP-Receiver interrupted");
                         break;
                     } else {
                         throw new RuntimeException(e);
                     }
                 }
             }
-            logger.log(Level.FINE, "RTP-Receiver stopped");
+            log.fine( "RTP-Receiver stopped");
         }
     }
 
@@ -542,11 +542,11 @@ public class RtpHandler {
         // evaluate the correct TS-Offset at the beginning
         if (packet.gettimestamp()  > tsStart  && tsAdd == 0) {
             tsAdd  = packet.gettimestamp() - tsStart;
-            logger.log(Level.FINER, "RTP: set tsAdd: " + tsAdd);
+            log.finer( "RTP: set tsAdd: " + tsAdd);
         }
 
 
-        logger.log(Level.FINER,
+        log.finer(
             "---------------- Receiver RTP-Handler --------------------"
                 + "\r\n"
                 + "Got RTP packet with SeqNum # "
@@ -566,15 +566,15 @@ public class RtpHandler {
                 mediaPackets.put(seqNr, packet);
                 // set first RTP of a jpeg-frame
                 if (packet.getJpegOffset() == 0) {
-                    logger.log(Level.FINER, "got first Paket: " + seqNr);
+                    log.finer( "got first Paket: " + seqNr);
                     firstRtp.put(packet.gettimestamp(), seqNr);
                 }
                 // set the last RTP of a jpeg-frame
                 if (packet.getMarker() == 1) {
-                    logger.log(Level.FINER, "got last Paket: " + seqNr);
+                    log.finer( "got last Paket: " + seqNr);
                     lastRtp.put(packet.gettimestamp(), seqNr);
                 }
-                logger.log(Level.FINER, "JPEG-Offset + Marker: "
+                log.finer( "JPEG-Offset + Marker: "
                     + packet.getJpegOffset() + " " + packet.getMarker());
 
                 // set list of same timestamps
@@ -589,7 +589,7 @@ public class RtpHandler {
                 }
                 tmpTimestamps.add(seqNr);
                 sameTimestamps.put(ts, tmpTimestamps);
-                logger.log(Level.FINER, "RTP: set sameTimestamps: " + (0xFFFFFFFFL & ts)
+                log.finer( "RTP: set sameTimestamps: " + (0xFFFFFFFFL & ts)
                     + " " + tmpTimestamps);
                 break;
 

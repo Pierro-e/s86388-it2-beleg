@@ -27,12 +27,12 @@ public class QuickTimeMetadataParser {
      * @return Parsed metadata of the file if successful, null otherwise
      */
     public static VideoMetadata parse(String filename) {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(filename);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, ex.toString());
+            log.severe( ex.toString());
             return null;
         }
 
@@ -41,7 +41,7 @@ public class QuickTimeMetadataParser {
             try {
                 meta = parseAtom(fis);
             } catch (Exception ex) {
-                logger.log(Level.SEVERE, ex.toString());
+                log.severe( ex.toString());
                 return null;
             }
         }
@@ -50,16 +50,16 @@ public class QuickTimeMetadataParser {
     }
 
     private static boolean checkFileType(FileInputStream fis, int size) {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         byte data[] = new byte[size];
         try {
             int nbytes = fis.read(data);
             if (nbytes == -1) {
-                logger.log(Level.WARNING, "EOF reached");
+                log.warning( "EOF reached");
                 return false;
             }
         } catch (IOException ioex) {
-            logger.log(Level.SEVERE, ioex.toString());
+            log.severe( ioex.toString());
             return false;
         }
 
@@ -85,7 +85,7 @@ public class QuickTimeMetadataParser {
      * @throws Exception if an error occurs
      */
     private static VideoMetadata parseAtom(FileInputStream fis) throws Exception {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         byte header[] = new byte[8];
         int nbytes = fis.read(header);
         if (nbytes == -1) {
@@ -97,7 +97,7 @@ public class QuickTimeMetadataParser {
         size -= 8; // subtract size and type
 
         // DEBUG:
-        // logger.log(Level.FINE, type + ": " + size);
+        // log.fine( type + ": " + size);
         switch (type) {
             case "ftyp":
                 if (!checkFileType(fis, size)) {
@@ -136,7 +136,7 @@ public class QuickTimeMetadataParser {
                 fis.skip(size);
                 break;
             default:
-                logger.log(Level.INFO, "Atom type " + type + " not recognized");
+                log.info( "Atom type " + type + " not recognized");
                 fis.skip(size);
                 break;
         }
@@ -174,12 +174,12 @@ public class QuickTimeMetadataParser {
     }
 
     private static boolean parseMediaHeaderAtom(FileInputStream fis, int size) {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         byte data[] = new byte[size];
         try {
             fis.read(data);
         } catch (IOException ioex) {
-            logger.log(Level.SEVERE, ioex.toString());
+            log.severe( ioex.toString());
             return false;
         }
 
@@ -199,12 +199,12 @@ public class QuickTimeMetadataParser {
     }
 
     private static boolean parseTimeToSampleAtom(FileInputStream fis, int size) {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         byte data[] = new byte[size];
         try {
             fis.read(data);
         } catch (IOException ioex) {
-            logger.log(Level.SEVERE, ioex.toString());
+            log.severe( ioex.toString());
             return false;
         }
 

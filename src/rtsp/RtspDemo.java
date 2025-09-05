@@ -55,7 +55,7 @@ abstract class RtspDemo {
   }
 
   State state;
-  static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+  static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 
 
@@ -145,20 +145,20 @@ abstract class RtspDemo {
    public boolean setup() {
     // request is only valid if client is in correct state
     if (state != State.INIT) {
-      logger.log(Level.WARNING, "RTSP state: " + state);
+      log.warning("RTSP state: " + state);
       return false;
     }
     RTSPSeqNb++;  // increase RTSP sequence number for every RTSP request sent
     send_RTSP_request("SETUP");
     // Wait for the response
-    logger.log(Level.INFO, "Wait for response...");
+    log.info("Wait for response...");
     int code = parse_server_response();
     if (code == 404) {
-      logger.log(Level.WARNING, "File not found");
+      log.warning("File not found");
       return false;
     } else {
       state = State.READY;
-      logger.log(Level.INFO, "New RTSP state: READY\n");
+      log.info("New RTSP state: READY\n");
       return true;
     }
   }
@@ -176,7 +176,7 @@ abstract class RtspDemo {
    * Sends a RTSP request to the server
    * @param request_type String with request type (e.g. SETUP)
    * write Requests to the RTSPBufferedWriter-Stream
-   * use logger.log() for logging the request to the console
+   * use log.log() for logging the request to the console
    * end request with BufferedWriter.flush()
    * Variables to use:
    *   url: RTSP-URL
@@ -197,7 +197,7 @@ abstract class RtspDemo {
     int reply_code = 0;
     int cl = 0;  // content length
 
-    logger.log(Level.INFO, "Waiting for Server response...");
+    log.info("Waiting for Server response...");
     try {
       // parse the whole reply
       ArrayList<String> respLines = new ArrayList<>();
@@ -205,7 +205,7 @@ abstract class RtspDemo {
       String line;
       do {
         line = RTSPBufferedReader.readLine();
-        logger.log(Level.CONFIG, line);
+        log.config(line);
         if (!line.isEmpty()) {
           respLines.add(line);
         }
@@ -222,7 +222,7 @@ abstract class RtspDemo {
 
         switch (headerField.nextToken().toLowerCase()) {
           case "cseq:":
-            logger.log(Level.FINE, "SNr: " + headerField.nextToken());
+            log.fine("SNr: " + headerField.nextToken());
             break;
 
           case "session:":
@@ -236,23 +236,23 @@ abstract class RtspDemo {
             break;
 
           case "public:":
-            logger.log(Level.INFO, "Options-Response: " + headerField.nextToken());
+            log.info("Options-Response: " + headerField.nextToken());
             break;
 
           case "content-type:":
             String ct = headerField.nextToken();
-            logger.log(Level.INFO, "Content-Type: " + ct);
+            log.info("Content-Type: " + ct);
             break;
 
           case "transport:":
-            logger.log(Level.INFO, "");
+            log.info("");
             break;
 
           default:
-            logger.log(Level.INFO, "Unknown: " + line);
+            log.info("Unknown: " + line);
         }
       }
-      logger.log(Level.INFO, "*** Response received ***\n----------------");
+      log.info("*** Response received ***\n----------------");
 
       // Describe will send content
       if (cl > 0) {
@@ -261,12 +261,12 @@ abstract class RtspDemo {
 
     } catch (Exception ex) {
       ex.printStackTrace();
-      logger.log(Level.SEVERE, "Exception caught: " + ex);
+      log.severe("Exception caught: " + ex);
       System.exit(0);
     }
 
     if (reply_code != 200) {
-      logger.log(Level.WARNING, "Invalid Server Response: " + reply_code);
+      log.warning("Invalid Server Response: " + reply_code);
     }
     return (reply_code);
   }
@@ -280,10 +280,10 @@ abstract class RtspDemo {
    */
   void parseSDP(int cl) throws IOException {
     char[] cBuf = new char[cl]; // number of bytes to read
-    logger.log(Level.INFO, "*** Parsing Response Data...");
+    log.info("*** Parsing Response Data...");
     int data = RTSPBufferedReader.read(cBuf, 0, cl);
-    logger.log(Level.INFO, "Data: " + data);
-    logger.log(Level.INFO, new String(cBuf));
+    log.info("Data: " + data);
+    log.info(new String(cBuf));
 
     framerate = 0;
     duration = 0.0;
@@ -293,16 +293,16 @@ abstract class RtspDemo {
       if (s.contains("framerate")) {
         String sfr = s.split(":")[1];
         framerate = Integer.parseInt(sfr);
-        logger.log(Level.INFO, "framerate: " + framerate);
+        log.info("framerate: " + framerate);
       } else if (s.contains("range:npt")) {
         String[] sdur = s.split("-");
         if (sdur.length > 1) {
           duration = Double.parseDouble(sdur[1]);
-          logger.log(Level.INFO, "duration [s]: " + duration);
+          log.info("duration [s]: " + duration);
         } //else duration = videoLength;      // no duration available, set demo video length
       } // else: other attributes are not recognized here
     }
-    logger.log(Level.INFO, "Finished Content Reading...");
+    log.info("Finished Content Reading...");
   }
 
 
@@ -386,13 +386,13 @@ abstract class RtspDemo {
    */
   public int parse_RTSP_request() throws IOException {
     int request_type = -1;
-    logger.log(Level.INFO, "*** wait for RTSP-Request ***");
+    log.info("*** wait for RTSP-Request ***");
     String RequestLine = RTSPBufferedReader.readLine();
     if (RequestLine == null) {   // null in case of closed socket (EOF)
-      logger.log(Level.WARNING, "RTSP-Request is null");
+      log.warning("RTSP-Request is null");
       throw new IOException("Socket closed by client");
     }
-    logger.log(Level.CONFIG, "RTSP: Client-Request:" + RequestLine);
+    log.config("RTSP: Client-Request:" + RequestLine);
 
     StringTokenizer tokens = new StringTokenizer(RequestLine);
     String request_type_string = tokens.nextToken();
@@ -413,13 +413,13 @@ abstract class RtspDemo {
       //String[] tok = dir.split(".+?/(?=[^/]+$)");
       String[] tok = dir.split("/");
       VideoFileName = tok[3];
-      logger.log(Level.CONFIG, "File: " + VideoFileName);
+      log.config("File: " + VideoFileName);
     }
 
     String line;
     line = RTSPBufferedReader.readLine();
     while (!line.isEmpty()) {
-      logger.log(Level.FINE, line);
+      log.fine(line);
       if (line.contains("CSeq")) {
         tokens = new StringTokenizer(line);
         tokens.nextToken();
@@ -428,13 +428,13 @@ abstract class RtspDemo {
         sdpTransportLine = line;
         RTP_dest_port = Integer.parseInt(line.split("=")[1].split("-")[0]);
         FEC_dest_port = RTP_dest_port + 0;
-        logger.log(Level.FINE, "Client-Port: " + RTP_dest_port);
+        log.fine("Client-Port: " + RTP_dest_port);
       }
       // else is any other field, not checking for now
 
       line = RTSPBufferedReader.readLine();
     }
-    logger.log(Level.INFO, "*** Request received ***\n");
+    log.info("*** Request received ***\n");
     return (request_type);
   }
 
@@ -444,7 +444,7 @@ abstract class RtspDemo {
    * @param method RTSP-Method
    */
    public void send_RTSP_response(int method, int... localPort) {
-    logger.log(Level.INFO, "*** send RTSP-Response ***");
+    log.info("*** send RTSP-Response ***");
     try {
       RTSPBufferedWriter.write("RTSP/1.0 200 OK" + CRLF);
       RTSPBufferedWriter.write("CSeq: " + RTSPSeqNb + CRLF);
@@ -456,7 +456,7 @@ abstract class RtspDemo {
           break;
         case DESCRIBE:
           //VideoMetadata meta = Server.getVideoMetadata(VideoFileName);
-          logger.log(Level.INFO, "SDP: " + getDescribe(meta, RTP_dest_port));
+          log.info("SDP: " + getDescribe(meta, RTP_dest_port));
           RTSPBufferedWriter.write( getDescribe(meta, RTP_dest_port ));
           break;
         case SETUP:
@@ -472,29 +472,28 @@ abstract class RtspDemo {
       // Send end of response
       if (method != DESCRIBE) RTSPBufferedWriter.write(CRLF);
       RTSPBufferedWriter.flush();
-      logger.log(Level.FINE, "*** RTSP-Server - Sent response to Client ***");
+      log.fine("*** RTSP-Server - Sent response to Client ***");
 
     } catch (Exception ex) {
       ex.printStackTrace();
-      logger.log(Level.SEVERE, "Exception caught: " + ex);
+      log.severe("Exception caught: " + ex);
       System.exit(0);
     }
   }
 
   public void send_RTSP_error_response(String code) {
-    logger.log(Level.WARNING, "*** send RTSP-Response Error ***");
+    log.warning("*** send RTSP-Response Error ***");
     try {
       RTSPBufferedWriter.write("RTSP/1.0 " + code + CRLF);
       RTSPBufferedWriter.write("CSeq: " + RTSPSeqNb + CRLF);
       RTSPBufferedWriter.write(CRLF);
       RTSPBufferedWriter.flush();
-      logger.log(Level.FINE, "*** RTSP-Server - Sent error response to Client ***");
-
+      log.fine("*** RTSP-Server - Sent error response to Client ***");
 
 
     } catch (Exception ex) {
       ex.printStackTrace();
-      logger.log(Level.SEVERE, "Exception caught: " + ex);
+      log.severe("Exception caught: " + ex);
       System.exit(0);
     }
   }

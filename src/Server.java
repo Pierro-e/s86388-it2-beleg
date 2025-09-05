@@ -1,7 +1,3 @@
-/* ------------------
-Server
-usage: java Server [RTSP listening port]
----------------------- */
 
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -64,7 +60,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
   // input and output stream filters
   static BufferedReader RTSPBufferedReader;
   static BufferedWriter RTSPBufferedWriter;
-  static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+  static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public Server() {
     super("Server"); // init Frame
@@ -131,11 +127,11 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
       if (source.getName().equals("k")) {
         int k = source.getValue();
         rtpHandler.setFecGroupSize(k);
-        logger.log(Level.INFO, "New Group size: " + k);
+        log.info("New Group size: " + k);
       } else {
         lossRate = source.getValue();
         lossRate = lossRate / 100;
-        logger.log(Level.INFO, "New packet error rate: " + lossRate);
+        log.info("New packet error rate: " + lossRate);
       }
     }
   }
@@ -182,12 +178,12 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
   // main
   // ------------------------------------
   public static void main(String[] argv) throws Exception {
-    CustomLoggingHandler.prepareLogger(logger);
+    CustomLoggingHandler.prepareLogger(log);
     /* set logging level
      * Level.CONFIG: default information (incl. RTSP requests)
      * Level.ALL: debugging information (headers, received packages and so on)
      */
-    logger.setLevel(Level.FINER);
+    log.setLevel(Level.FINER);
     //logger.setLevel(Level.ALL);
 
     printUsage();
@@ -218,7 +214,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
       try {
         request_type = theServer.rtsp.parse_RTSP_request(); // parse the request -> blocking
       } catch (IOException e) {
-        logger.log(Level.INFO, "Server: Socket closed from client side");
+        log.info("Server: Socket closed from client side");
         connection = false;
       }
 
@@ -238,7 +234,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
             // check for file existence
             File f = new File(VideoDir + theServer.rtsp.getVideoFileName());
             if (!f.isFile() || !f.exists()) {
-              logger.log(Level.INFO, "File not found");
+              log.info("File not found");
               theServer.rtsp.send_RTSP_error_response("404 file not found");
               break;
             }
@@ -252,7 +248,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
           // SETUP correct -> send response and change state
           state = READY;
           stateLabel.setText("READY");
-          logger.log(Level.INFO, "New RTSP state: READY");
+          log.info("New RTSP state: READY");
           theServer.rtsp.send_RTSP_response(SETUP, RTP_RCV_PORT );
           imagenb = 0;
           break;
@@ -263,7 +259,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
             theServer.timer.start();
             state = PLAYING;
             stateLabel.setText("PLAY");
-            logger.log(Level.INFO, "New RTSP state: PLAYING");
+            log.info( "New RTSP state: PLAYING");
           }
           break;
 
@@ -273,7 +269,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
             theServer.timer.stop();  // stop timer
             state = READY;
             stateLabel.setText("READY");
-            logger.log(Level.INFO, "New RTSP state: READY");
+            log.info("New RTSP state: READY");
           }
           break;
 
@@ -290,28 +286,28 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
           break;
 
         case OPTIONS:
-          logger.log(Level.INFO, "Options request");
+          log.info("Options request");
           theServer.rtsp.send_RTSP_response(OPTIONS);
           break;
 
         case DESCRIBE:
-          logger.log(Level.INFO, "DESCRIBE Request");
+          log.info("DESCRIBE Request");
           // check for file existence
           File f = new File(VideoDir + theServer.rtsp.getVideoFileName());
           if (!f.isFile() || !f.exists()) {
-            logger.log(Level.INFO, "File not found");
+            log.info( "File not found");
             theServer.rtsp.send_RTSP_error_response("404 file not found");
             break;
           }
 
           theServer.videoMeta = VideoMetadata.getVideoMetadata(VideoDir, theServer.rtsp.getVideoFileName() );
           theServer.rtsp.setVideoMeta(theServer.videoMeta);
-          logger.log(Level.INFO, "Video Meta: " + theServer.videoMeta.toString());
+          log.info("Video Meta: " + theServer.videoMeta.toString());
           theServer.rtsp.send_RTSP_response(DESCRIBE);
           break;
 
         default:
-          logger.log(Level.WARNING, "Wrong request");
+          log.warning("Wrong request");
       }
     }
   }
@@ -324,7 +320,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
     // Initiate TCP connection with the client for the RTSP session
     ServerSocket listenSocket = new ServerSocket(RTSPport);
     RTSPsocket = listenSocket.accept();
-    logger.log(Level.INFO, "Client connected: " + RTSPsocket.getInetAddress());
+    log.info("Client connected: " + RTSPsocket.getInetAddress());
     listenSocket.close();
     server.ClientIPAddr = RTSPsocket.getInetAddress();   // Get Client IP address
 
@@ -355,12 +351,12 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
         jpegFrame = video.readNextImage();  // get next frame from file
       }
     } catch (Exception ex) {
-      logger.log(Level.SEVERE, "Exception caught: " + ex);
+      log.severe("Exception caught: " + ex);
       ex.printStackTrace();
     }
 
     if (jpegFrame != null) {
-      logger.log(Level.FINE, "image nr.:" + imagenb + " size: " + jpegFrame.length);
+      log.fine("image nr.:" + imagenb + " size: " + jpegFrame.length);
       label.setText("Send frame #" + imagenb);   // update GUI
 
       rtpHandler.sendJpeg(jpegFrame, videoMeta.getFramerate(), ClientIPAddr,

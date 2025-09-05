@@ -12,7 +12,7 @@ public class VideoMetadata {
     //static int DEFAULT_FRAME_PERIOD = 1000; // Debugging
     private int framerate;
     private double duration; // in seconds
-    static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+    static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
     public VideoMetadata(int framerate, double duration) {
         this.framerate = framerate;
@@ -53,10 +53,10 @@ public class VideoMetadata {
                 meta = QuickTimeMetadataParser.parse(dir+filename);
                 break;
             default:
-                logger.log(Level.WARNING, "File extension not recognized: " + filename);
+                log.warning( "File extension not recognized: " + filename);
             case "mjpg":
             case "mjpeg":
-                logger.log(Level.FINE, "Framerate: " + 1000 / DEFAULT_FRAME_PERIOD);
+                log.fine( "Framerate: " + 1000 / DEFAULT_FRAME_PERIOD);
                 meta = new VideoMetadata(1000 / DEFAULT_FRAME_PERIOD);
                 break;
         }

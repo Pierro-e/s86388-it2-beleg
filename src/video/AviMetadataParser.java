@@ -19,17 +19,17 @@ public class AviMetadataParser {
      * @return Parsed metadata of the file if successful, null otherwise
      */
     public static VideoMetadata parse(String filename) {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         FileInputStream fis = null;
         try {
             fis = new FileInputStream(filename);
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, ex.toString());
+            log.severe( ex.toString());
             return null;
         }
 
         if (checkListHeader(fis, "RIFF", "AVI ") == -1) {
-            logger.log(Level.WARNING, "File " + filename + " is not an AVI!");
+            log.warning( "File " + filename + " is not an AVI!");
             try {
                 fis.close();
             } catch (Exception ex) {
@@ -54,16 +54,16 @@ public class AviMetadataParser {
      *  @return size of the chunk if such a chunk was found, -1 otherwise
      */
     private static int checkChunkHeader(FileInputStream fis, String type) {
-      Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+      Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         byte header[] = new byte[8];
         try {
             int nbytes = fis.read(header);
             if (nbytes == -1) {
-                logger.log(Level.WARNING, "EOF reached");
+                log.warning( "EOF reached");
                 return -1;
             }
         } catch (IOException ioex) {
-            logger.log(Level.SEVERE, ioex.toString());
+            log.severe( ioex.toString());
             return -1;
         }
 
@@ -85,17 +85,17 @@ public class AviMetadataParser {
      *  @return size of the list if a list with the specified label and type was found, -1 otherwise
      */
     private static int checkListHeader(FileInputStream fis, String label, String type) {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         int headerSize = 12;
         byte header[] = new byte[headerSize];
         try {
             int nbytes = fis.read(header);
             if (nbytes == -1) {
-                logger.log(Level.WARNING, "EOF reached");
+                log.warning( "EOF reached");
                 return -1;
             }
         } catch (IOException ioex) {
-            logger.log(Level.SEVERE, ioex.toString());
+            log.severe( ioex.toString());
             return -1;
         }
         String lb = new String(header, 0, 4);
@@ -116,18 +116,18 @@ public class AviMetadataParser {
     private static VideoMetadata parseAviHeader(FileInputStream fis) {
         Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         if (checkListHeader(fis, LIST_STRING, "hdrl") == -1) {
-            logger.log(Level.WARNING, "No header found");
+            logger.warning( "No header found");
             return null;
         }
 
         // The main AVI header does not contain useful information.
         if (!skipChunk(fis, "avih")) {
-            logger.log(Level.WARNING, "Skipping main AVI header chunk was not successful");
+            logger.warning( "Skipping main AVI header chunk was not successful");
             return null;
         }
 
         if (checkListHeader(fis, LIST_STRING, "strl") == -1) {
-            logger.log(Level.WARNING, "Stream list not found");
+            logger.warning( "Stream list not found");
             return null;
         }
 
@@ -137,7 +137,7 @@ public class AviMetadataParser {
     }
 
     private static VideoMetadata parseAviStreamHeaderChunk(FileInputStream fis) {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         int size = checkChunkHeader(fis, "strh");
         if (size == -1) {
             return null;
@@ -147,11 +147,11 @@ public class AviMetadataParser {
         try {
             int nbytes = fis.read(data);
             if (nbytes == -1) {
-                logger.log(Level.WARNING, "EOF reached");
+                log.warning( "EOF reached");
                 return null;
             }
         } catch (IOException ioex) {
-            logger.log(Level.SEVERE, ioex.toString());
+            log.severe( ioex.toString());
             return null;
         }
 
@@ -195,16 +195,16 @@ public class AviMetadataParser {
     }
 
     private static boolean skipChunk(FileInputStream fis, String type) {
-        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+        Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
         byte header[] = new byte[8];
         try {
             int nbytes = fis.read(header);
             if (nbytes == -1) {
-                logger.log(Level.WARNING, "EOF reached");
+                log.warning( "EOF reached");
                 return false;
             }
         } catch (IOException ioex) {
-            logger.log(Level.SEVERE, ioex.toString());
+            log.severe( ioex.toString());
             return false;
         }
 
@@ -227,7 +227,7 @@ public class AviMetadataParser {
         try {
             long skipped = fis.skip(size);
         } catch (IOException ioex) {
-            logger.log(Level.SEVERE, ioex.toString());
+            log.severe( ioex.toString());
             return false;
         }
 

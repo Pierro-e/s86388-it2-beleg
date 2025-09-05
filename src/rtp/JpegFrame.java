@@ -138,7 +138,7 @@ public class JpegFrame {
   private int restartInterval;
   private byte[] payload;
 
-  static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+  static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   private JpegFrame() {
   }
@@ -174,7 +174,7 @@ public class JpegFrame {
       // Prüfe, welcher Marker gelesen wurde.
       if (Arrays.equals(marker, DQT_MARKER)) {
         if (section_body[0] != 0x00) {
-          logger.log(Level.WARNING,"RFC 2435 supports only 8-bit precision");
+          log.warning("RFC 2435 supports only 8-bit precision");
         }
 
         /* Quantisierungstabelle (QT) ist 64 Byte lang. */
@@ -202,7 +202,7 @@ public class JpegFrame {
         // Only 3 components are supported by RFC 2435
         final int numComponents = byteArrayToInt(Arrays.copyOfRange(section_body, 5, 6));
         if (numComponents != 3) {
-          logger.log(Level.WARNING, "RFC-2435 supports only  3 sampling-components: " + numComponents);
+          log.warning( "RFC-2435 supports only  3 sampling-components: " + numComponents);
         }
         for (int j = 0; j < 3; j++) {
           final int idx = 6 + j * 3;
@@ -217,8 +217,8 @@ public class JpegFrame {
       } else if (Arrays.equals(marker, DRI_MARKER)) {
         jpegFrame.setDri(true);
         jpegFrame.setRestartInterval(byteArrayToInt( Arrays.copyOfRange(  data, 4, 6)));
-        logger.log(Level.FINEST, "JPEG: Restart-Interval: " + bytesToHex(data) );
-        logger.log(Level.FINE, "JPEG: Restart-Interval: " + jpegFrame.restartInterval );
+        log.finest( "JPEG: Restart-Interval: " + bytesToHex(data) );
+        log.fine( "JPEG: Restart-Interval: " + jpegFrame.restartInterval );
 
       } else if (Arrays.equals(marker, SOS_MARKER)) {
         headerFinish = true;
@@ -251,7 +251,7 @@ public class JpegFrame {
     jpegFrame.height = byteArrayToInt(Arrays.copyOfRange(payload, 7, 8)) * 8;
     if (jpegFrame.dri) { // Restart-Header is present
       jpegFrame.restartInterval = byteArrayToInt(Arrays.copyOfRange(payload, 8, 10));
-      logger.log(Level.FINE, "JPEG: Restart-Interval: " + jpegFrame.restartInterval);
+      log.fine( "JPEG: Restart-Interval: " + jpegFrame.restartInterval);
     }
 
     final int offsetToQuantizationHeader = 8 + (jpegFrame.dri ? 4 : 0);
@@ -375,7 +375,7 @@ public class JpegFrame {
     int length = (offset+MTU > payload.length) ? payload.length-offset : MTU;
    // JPEG-Payload-Fragment hinzufügen
     System.arraycopy(payload, offset, rfcHeader, idx, length);
-    logger.log(Level.FINEST, "RFC-2435 Header: " + idx  + " Payload: " + length + " Bytes");
+    log.finest( "RFC-2435 Header: " + idx  + " Payload: " + length + " Bytes");
     return truncate(rfcHeader, idx + length);
   }
 
@@ -397,7 +397,7 @@ public class JpegFrame {
           if (  payload[i] == -1 && Byte.toUnsignedInt(payload[i+1]) >= 0xD0 &&
                         Byte.toUnsignedInt(payload[i+1]) <= 0xD7) {
             MTU = i - offset;
-            logger.log(Level.FINER, "JPEG: MTU: " + MTU);
+            log.finer( "JPEG: MTU: " + MTU);
             break;
           }
         }

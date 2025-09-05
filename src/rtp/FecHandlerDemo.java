@@ -48,7 +48,7 @@ abstract class FecHandlerDemo {
   int nrNotCorrected; // play loop
   int nrFramesRequested; // Video Frame
   int nrFramesLost; // Video Frame
-  static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+  static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   /** Constructor for Sender */
   public FecHandlerDemo(int size) {
@@ -87,7 +87,7 @@ abstract class FecHandlerDemo {
 
   /** @return True, if all RTP-packets of the group are handled */
   public boolean isReady() {
-    logger.log(Level.FINER, "FEC: isReady: " + fecGroupCounter + " " + fecGroupSize);
+    log.finer( "FEC: isReady: " + fecGroupCounter + " " + fecGroupSize);
     return (fecGroupCounter == fecGroupSize);
   }
 
@@ -136,7 +136,7 @@ abstract class FecHandlerDemo {
 
     // get RTP List
     ArrayList<Integer> list = fec.getRtpList();
-    logger.log(Level.FINER, "FEC: set list: " + seqNrFec + " " + list.toString());
+    log.finer( "FEC: set list: " + seqNrFec + " " + list.toString());
 
     // set list to get fec packet nr
     list.forEach((E) -> fecNr.put(E, seqNrFec)); // FEC-packet
@@ -178,7 +178,7 @@ abstract class FecHandlerDemo {
       int fnr = fecNr.get(cnr); // corresponding FEC packet
       fecStack.remove(fnr);
     }
-    logger.log(Level.FINER, "FEC: clear nr: " + cnr);
+    log.finer( "FEC: clear nr: " + cnr);
 
     fecNr.remove(cnr);
     fecList.remove(cnr);

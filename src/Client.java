@@ -24,7 +24,7 @@ public class Client  {
 
   // ********************** RTSP variables ************************
   private static Rtsp rtsp;
-  private static final Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+  private static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
   public Client() {
     view = new ClientView( new ButtonListener()  );
@@ -37,12 +37,12 @@ public class Client  {
    * @throws Exception stacktrace at console
    */
   public static void main(String[] argv) throws Exception {
-    CustomLoggingHandler.prepareLogger(logger);
+    CustomLoggingHandler.prepareLogger(log);
     /* set logging level
      * Level.CONFIG: default information (incl. RTSP requests)
      * Level.ALL: debugging information (headers, received packages and so on)
      */
-    logger.setLevel(Level.FINER);
+    log.setLevel(Level.FINER);
 
     Client theClient = new Client();  // Create a Client object
 
@@ -55,9 +55,8 @@ public class Client  {
   public class ButtonListener implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
-      logger.log(Level.INFO, "Button: " + e.getActionCommand());
-
       String cmd = e.getActionCommand();
+      log.info("Button: " + cmd);
 
       if (cmd.contains("SRTP") || cmd.contains("JPEG") || cmd.contains("keine") ) {
         setEncrytionMode(cmd);
@@ -132,7 +131,7 @@ public class Client  {
           break;
         case "nutze FEC":
           if (rtsp != null && (rtsp.getState() == Rtsp.State.READY || rtsp.getState() == Rtsp.State.PLAYING )) {
-            logger.log(Level.INFO, view.checkBoxFec.isSelected() ? "FEC on" : "FEC off");
+            log.info( view.checkBoxFec.isSelected() ? "FEC on" : "FEC off");
             rtpHandler.setFecDecryptionEnabled(view.checkBoxFec.isSelected());
           }
           break;
@@ -163,7 +162,7 @@ public class Client  {
         return;
       }
 
-      logger.log(Level.FINER, "----------------- Play timer --------------------");
+      log.finer("----------------- Play timer --------------------");
       BufferedImage bi = JpegDisplay.nextPlaybackImage( rtpHandler, rs, view.checkBoxEco.isSelected());
       if (bi != null)  view.iconLabel.setIcon( new ImageIcon(bi) );
     }
