@@ -82,8 +82,7 @@ public class Client  {
             // set jitter buffer size
             rtpHandler.setJitterBufferStartSize(Integer.parseInt(view.pufferNumber.getText()));
             rtpHandler.startReceiver(RTP_RCV_PORT);
-            // TODO
-            rtpHandler.setFecDecryptionEnabled(view.checkBoxFec.isSelected());
+            rtpHandler.setFecDecryptionEnabled(view.checkBoxFec.isSelected()); // set FEC
             // Init the play timer
             int timerDelay = 1000 / rtsp.getFramerate(); // delay in ms, default 40 ms for 25 fps
             timerPlay = new Timer(timerDelay, new timerPlayListener());

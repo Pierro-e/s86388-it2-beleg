@@ -30,6 +30,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
   RtpHandler rtpHandler;
   Rtsp rtsp = null;
   static private double lossRate = 0.0;  // Channel errors
+  static int RTP_RCV_PORT = 25000; // port where the server will receive the RTP/RTCP packets
 
   // **************** GUI **************************
   JLabel label;
@@ -223,11 +224,11 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
 
       if (connection) switch (request_type) {
         case SETUP:
-          // TODO
+          // get video meta (frame rate, duration) from file
           if (theServer.videoMeta == null) {
             theServer.videoMeta = VideoMetadata.getVideoMetadata(VideoDir, theServer.rtsp.getVideoFileName() );
           }
-
+          // use webcam or file?
           if (theServer.rtsp.getVideoFileName().endsWith("webcam")) {
             webcam = Webcam.getDefault();
             webcam.close();
@@ -248,12 +249,11 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
           theServer.timer = new Timer(1000 / theServer.videoMeta.getFramerate(), theServer);
           theServer.timer.setInitialDelay(0);
           theServer.timer.setCoalesce(false); // Coalesce can lead to buffer underflow in client
-
+          // SETUP correct -> send response and change state
           state = READY;
           stateLabel.setText("READY");
           logger.log(Level.INFO, "New RTSP state: READY");
-
-          theServer.rtsp.send_RTSP_response(SETUP, RTSPsocket.getLocalPort() );
+          theServer.rtsp.send_RTSP_response(SETUP, RTP_RCV_PORT );
           imagenb = 0;
           break;
 

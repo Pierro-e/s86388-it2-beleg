@@ -41,10 +41,7 @@ abstract class FecHandlerDemo {
   // -> Receiver
   boolean useFec;
 
-  // Error Concealment
-  byte[] lastPayload = {1};
-
-  // *** Statistics for media packets ********
+    // *** Statistics for media packets ********
   int nrReceived; // count only media at receiver
   int nrLost; // media missing, play loop
   int nrCorrected; // play loop
@@ -109,13 +106,8 @@ abstract class FecHandlerDemo {
     return buf;
   }
 
-  /** Reset of fec group and variables */
-  private void clearSendGroup() {
-    // TODO
-  }
-
   /**
-   * *** Sender *** Posibility to set the group at run time
+   * *** Sender *** Possibility to set the group at run time
    *
    * @param size FEC Group
    */
@@ -128,15 +120,14 @@ abstract class FecHandlerDemo {
   // *************** Receiver PUT *****************************************************************
 
   /**
-   * Handles and store a recieved FEC packet
+   * Handles and store a received FEC packet
    *
    * @param rtp the received FEC-RTP
    */
   public void rcvFecPacket(RtpPacket rtp) {
     // build fec from rtp
     fec = new FecPacket(rtp.getpacket(), rtp.getpacket().length);
-    // TASK remove comment for debugging
-    // fec.printHeaders();
+    fec.printHeaders();
 
     // stores fec
     int seqNrFec = fec.getsequencenumber();

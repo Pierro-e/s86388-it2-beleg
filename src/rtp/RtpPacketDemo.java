@@ -1,7 +1,6 @@
 package rtp;
 
 import java.nio.ByteBuffer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 abstract class RtpPacketDemo {
@@ -37,10 +36,13 @@ abstract class RtpPacketDemo {
   public int payload_size;  // size of the RTP payload
   public byte[] payload;    // Bitstream of the RTP payload
 
+  Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
   /**
-   * Fill the header array of byte with RTP header fields
+   * Fill the header array of byte with RTP header fields (12 bytes)
    * header[0] =
    * ...
+   * header[11] =
    */
   abstract void setRtpHeader();
 
@@ -212,13 +214,13 @@ abstract class RtpPacketDemo {
 
 
   void printheader(int size, byte[] data) {
-    Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
     StringBuilder b = new StringBuilder();
     for (int i = 0; i < size; i++) {
       b.append(String.format("%8s", Integer.toBinaryString(data[i] & 0xFF)).replace(' ', '0'));
       b.append(" ");
     }
-    logger.log(Level.FINEST, b.toString());
+    log.finest( b.toString());
   }
 
 

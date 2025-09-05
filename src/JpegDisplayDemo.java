@@ -38,7 +38,7 @@ abstract class JpegDisplayDemo {
    * @return image
    */
   abstract BufferedImage setTransparency(BufferedImage back, BufferedImage foreground, List<Integer> list);
-  //TASK implement method in class JpegDisplay
+
 
   /**
    * Get the next image from RTP-Handler and make error concealment using transparency

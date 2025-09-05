@@ -301,7 +301,6 @@ public class RtpHandler {
             return null;
         } else logger.log(Level.FINE, "PLAY: RTP list size for rtp: " +playbackIndex + " " + packetList.size());
 
-        // TODO sometimes nullpointer exception
         if (packetList.get(0) == null || packetList.get(packetList.size()-1) == null ) {
             logger.log(Level.WARNING, "Nullpointer -> Check!");
             return null;

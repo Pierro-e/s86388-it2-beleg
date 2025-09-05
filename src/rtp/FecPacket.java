@@ -339,8 +339,7 @@ public class FecPacket extends RtpPacket {
    * @return rtp
    */
   public RtpPacket getLostRtp(int snr) {
-    // TODO get the correct SNr
-    return new RtpPacket(ptRecovery, snr  ,tsRecovery, M, payload, lengthRecovery);
+    return new RtpPacket(ptRecovery, snr, tsRecovery, M, payload, lengthRecovery);
   }
 
 
