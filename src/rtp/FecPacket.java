@@ -261,29 +261,26 @@ public class FecPacket extends RtpPacket {
     L = (fecHeader[0] & 0b01000000) >> 6;
     // ignore P,X,CC,M yet
     ptRecovery = 0x7F & fecHeader[1];
-    snBase = (0xFF & fecHeader[2]) * 256 + (0xFF & fecHeader[3]);
-    // TODO check if correct
-    tsRecovery =
-        (0xFFFFFF & fecHeader[4]) * 0xFFFF
-            + (0xFF & fecHeader[5])
-            + (0xFF & fecHeader[6]) * 256
-            + (0xFF & fecHeader[7]);
-    lengthRecovery = (0xFF & fecHeader[8]) * 256 + (0xFF & fecHeader[9]);
+    snBase = ((fecHeader[2] & 0xFF) << 8) | (fecHeader[3] & 0xFF);
+    tsRecovery = ((fecHeader[4] & 0xFF) << 24)
+               | ((fecHeader[5] & 0xFF) << 16)
+               | ((fecHeader[6] & 0xFF) << 8)
+               |  (fecHeader[7] & 0xFF);
+    lengthRecovery = ((fecHeader[8] & 0xFF) << 8) | (fecHeader[9] & 0xFF);
 
     // ULP Level Header
     if (L == 0) ulpLevelHeader = new byte[ULP_HEADER_SIZE0];
     else ulpLevelHeader = new byte[ULP_HEADER_SIZE1];
     // copy the ULP header
     System.arraycopy(payload, FEC_HEADER_SIZE, ulpLevelHeader, 0, ulpLevelHeader.length);
-    protectionLength = (0xFF & ulpLevelHeader[0]) * 256 + (0xFF & ulpLevelHeader[1]);
+    protectionLength = ((ulpLevelHeader[0] & 0xFF) << 8) | (ulpLevelHeader[1] & 0xFF);
     // Small mask
     mask = ((0xFFL & ulpLevelHeader[2]) << 56) + ((0xFFL & ulpLevelHeader[3]) << 48);
     // System.out.println("FEC mask: " + ulpLevelHeader[2] + " " + ulpLevelHeader[3] + " " +
     // Long.toHexString(mask));
     // Large mask
     if (L == 1) {
-      mask |=
-          ((0xFFL & ulpLevelHeader[4]) << 40)
+      mask |=   ((0xFFL & ulpLevelHeader[4]) << 40)
               + ((0xFFL & ulpLevelHeader[5]) << 32)
               + ((0xFFL & ulpLevelHeader[6]) << 24)
               + ((0xFFL & ulpLevelHeader[7]) << 16);
@@ -349,12 +346,11 @@ public class FecPacket extends RtpPacket {
    * Prints the FEC- and ULP-Header fields
    */
   public void printHeaders() {
-    Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-    log.finer( "FEC-Header");
+    log.finer( "FEC-Header (10 octets)");
     printheader(FEC_HEADER_SIZE, fecHeader);
-    log.finer( "FEC-Level-Header");
+    log.finer( "FEC-Level-Header (4/8 octets)");
     printheader(ulpLevelHeader.length, ulpLevelHeader);
-    log.finer( "FEC-Payload");
+    log.finer( "FEC-Payload (first 3 octets)");
     printheader(3, payload);
   }
 }

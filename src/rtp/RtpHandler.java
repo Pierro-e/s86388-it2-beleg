@@ -600,7 +600,7 @@ public class RtpHandler {
 
             default:  // ignore unknown packet
         }
-
+        log.finer( "RTP-Header (8 octets)");
         packet.printheader(); // print rtp header bitstream for debugging
     }
 
