@@ -19,19 +19,13 @@ import utils.CustomLoggingHandler;
 import video.VideoMetadata;
 import video.VideoReader;
 
-public class Server extends JFrame implements ActionListener, ChangeListener {
-
+public class Server implements ActionListener {
   InetAddress ClientIPAddr; // Client IP address
   static int startGroupSize = 2;
   RtpHandler rtpHandler;
   Rtsp rtsp = null;
   static private double lossRate = 0.0;  // Channel errors
   static int RTP_RCV_PORT = 25000; // port where the server will receive the RTP/RTCP packets
-
-  // **************** GUI **************************
-  JLabel label;
-  static JLabel stateLabel;
-  private ButtonGroup encryptionButtons = null;
 
   // **************** Video variables: ***************
   static int imagenb = 0; // image nb of the image currently transmitted
@@ -61,122 +55,14 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
   static BufferedReader RTSPBufferedReader;
   static BufferedWriter RTSPBufferedWriter;
   static final Logger log = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+  static ServerView view;
 
   public Server() {
-    super("Server"); // init Frame
     rtpHandler = new RtpHandler(startGroupSize); // init RTP socket and FEC
-    // Handler to close the main window
-    addWindowListener(
-        new WindowAdapter() {
-          public void windowClosing(WindowEvent e) {
-            if (timer != null) timer.stop();
-            System.exit(0);
-          }
-        });
-
-    
-    // GUI:
-    label = new JLabel("Send frame #        ", JLabel.CENTER);
-    stateLabel = new JLabel("State:         ",JLabel.CENTER);
-    getContentPane().add(label, BorderLayout.NORTH);
-    getContentPane().add(stateLabel, BorderLayout.SOUTH);
-    // Error Slider
-    JPanel mainPanel = new JPanel();
-    mainPanel.setLayout(new GridBagLayout());
-    GridBagConstraints gbc = new GridBagConstraints();
-    JSlider dropRate = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (lossRate * 100));
-    dropRate.addChangeListener(this);
-    dropRate.setMajorTickSpacing(10);
-    dropRate.setMinorTickSpacing(5);
-    dropRate.setPaintTicks(true);
-    dropRate.setPaintLabels(true);
-    dropRate.setName("p");
-    JSlider groupSize = new JSlider(JSlider.HORIZONTAL, 2, 48, startGroupSize);
-    groupSize.addChangeListener(this::stateChanged);
-    groupSize.setMajorTickSpacing(4);
-    groupSize.setMinorTickSpacing(1);
-    groupSize.setPaintLabels(true);
-    groupSize.setPaintTicks(true);
-    groupSize.setName("k");
-    gbc.gridx = 0;
-    gbc.gridy = 0;
-    gbc.gridwidth = 4;
-    gbc.weighty = 1;
-    gbc.fill = GridBagConstraints.BOTH;
-    mainPanel.add(groupSize, gbc);
-    gbc = new GridBagConstraints();
-    gbc.gridx = 0;
-    gbc.gridy = 1;
-    gbc.gridwidth = 4;
-    gbc.weighty = 1;
-    gbc.fill = GridBagConstraints.BOTH;
-    mainPanel.add(dropRate, gbc);
-
-    initGuiEncryption(mainPanel);
-    getContentPane().add(mainPanel, BorderLayout.CENTER);
+    view = new ServerView( new Server.ButtonListener()  );
   }
 
-  /**
-   * Handler for Channel error Slider
-   *
-   * @param e Change Event
-   */
-  public void stateChanged(ChangeEvent e) {
-    JSlider source = (JSlider) e.getSource();
-    if (!source.getValueIsAdjusting()) {
-      if (source.getName().equals("k")) {
-        int k = source.getValue();
-        rtpHandler.setFecGroupSize(k);
-        log.info("New Group size: " + k);
-      } else {
-        lossRate = source.getValue();
-        lossRate = lossRate / 100;
-        log.info("New packet error rate: " + lossRate);
-      }
-    }
-  }
 
-  /**
-   * Handler for encryption RadioButtons.
-   * <p>
-   * The ItemEvent is just fired if a Button is selected
-   * which previous was not.
-   *
-   * @param ev ItemEvent
-   */
-  public void radioButtonSelected(ItemEvent ev) {
-    JRadioButton rb = (JRadioButton)ev.getItem();
-    if (rb.isSelected()) {
-      String label = rb.getText();
-      RtpHandler.EncryptionMode mode = RtpHandler.EncryptionMode.NONE;
-
-      switch (label) {
-      case "SRTP":
-        mode = RtpHandler.EncryptionMode.SRTP;
-        break;
-      case "JPEG":
-        mode = RtpHandler.EncryptionMode.JPEG;
-        break;
-      default:
-        break;
-      }
-
-      boolean encryptionSet = rtpHandler.setEncryption(mode);
-      if (!encryptionSet) {
-        Enumeration<AbstractButton> buttons = encryptionButtons.getElements();
-        while (buttons.hasMoreElements()) {
-          AbstractButton ab = buttons.nextElement();
-          if (ab.getText().equals("keine")) {
-            ab.setSelected(true);
-          }
-        }
-      }
-    }
-  }
-
-  // ------------------------------------
-  // main
-  // ------------------------------------
   public static void main(String[] argv) throws Exception {
     CustomLoggingHandler.prepareLogger(log);
     /* set logging level
@@ -184,9 +70,9 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
      * Level.ALL: debugging information (headers, received packages and so on)
      */
     log.setLevel(Level.FINER);
-    //logger.setLevel(Level.ALL);
-
     printUsage();
+    Server theServer = new Server();  // create a Server object
+
     if (argv.length > 0) {
       RTSPport = Integer.parseInt(argv[0]);  // get RTSP socket port from the command line
     }
@@ -194,11 +80,9 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
     if (argv.length > 2) {
       lossRate = Double.parseDouble(argv[1]);
       startGroupSize = Integer.parseInt(argv[2]);
+      view.dropRate.setValue((int) (lossRate * 100));
+      view.groupSize.setValue(startGroupSize);
     }
-
-    Server theServer = new Server();  // create a Server object
-    theServer.setSize(500, 200);
-    theServer.setVisible(true);
 
     boolean connection = false;
     int request_type = 0;
@@ -207,7 +91,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
       if (!connection) {
         connectClient(theServer);
         state = INIT;   // Initiate RTSPstate
-        stateLabel.setText("INIT");
+        view.stateLabel.setText("INIT");
         connection = true;
       }
 
@@ -247,7 +131,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
           theServer.timer.setCoalesce(false); // Coalesce can lead to buffer underflow in client
           // SETUP correct -> send response and change state
           state = READY;
-          stateLabel.setText("READY");
+          view.stateLabel.setText("READY");
           log.info("New RTSP state: READY");
           theServer.rtsp.send_RTSP_response(SETUP, RTP_RCV_PORT );
           imagenb = 0;
@@ -258,7 +142,7 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
             theServer.rtsp.send_RTSP_response(PLAY);
             theServer.timer.start();
             state = PLAYING;
-            stateLabel.setText("PLAY");
+            view.stateLabel.setText("PLAY");
             log.info( "New RTSP state: PLAYING");
           }
           break;
@@ -268,14 +152,14 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
             theServer.rtsp.send_RTSP_response(PAUSE);
             theServer.timer.stop();  // stop timer
             state = READY;
-            stateLabel.setText("READY");
+            view.stateLabel.setText("READY");
             log.info("New RTSP state: READY");
           }
           break;
 
         case TEARDOWN:
           state = INIT;
-          stateLabel.setText("INIT");
+          view.stateLabel.setText("INIT");
           theServer.rtsp.send_RTSP_response(TEARDOWN);
           theServer.timer.stop();
           theServer.videoMeta = null;
@@ -352,12 +236,11 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
       }
     } catch (Exception ex) {
       log.severe("Exception caught: " + ex);
-      ex.printStackTrace();
     }
 
     if (jpegFrame != null) {
       log.fine("image nr.:" + imagenb + " size: " + jpegFrame.length);
-      label.setText("Send frame #" + imagenb);   // update GUI
+      view.label.setText("Send frame #" + imagenb);   // update GUI
 
       rtpHandler.sendJpeg(jpegFrame, videoMeta.getFramerate(), ClientIPAddr,
           rtsp.getRTP_dest_port(), lossRate);
@@ -367,54 +250,72 @@ public class Server extends JFrame implements ActionListener, ChangeListener {
   }
 
 
-  private void initGuiEncryption(JPanel panel) {
-    GridBagConstraints gbc = new GridBagConstraints();
-    JLabel encryptionLabel = new JLabel("Verschlüsselung:");
-    gbc.gridx = 0;
-    gbc.gridy = 2;
-    gbc.weightx = 1;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    gbc.insets = new Insets(0, 10, 0, 0);
-    panel.add(encryptionLabel, gbc);
-
-    encryptionButtons = new ButtonGroup();
-    JRadioButton e_none = new JRadioButton("keine");
-    e_none.addItemListener(this::radioButtonSelected);
-    encryptionButtons.add(e_none);
-    e_none.setSelected(true);
-    gbc = new GridBagConstraints();
-    gbc.gridx = 1;
-    gbc.gridy = 2;
-    gbc.weightx = 1;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    panel.add(e_none, gbc);
-
-    JRadioButton e_srtp = new JRadioButton("SRTP");
-    e_srtp.addItemListener(this::radioButtonSelected);
-    encryptionButtons.add(e_srtp);
-    gbc = new GridBagConstraints();
-    gbc.gridx = 2;
-    gbc.gridy = 2;
-    gbc.weightx = 1;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    panel.add(e_srtp, gbc);
-
-    JRadioButton e_jpeg = new JRadioButton("JPEG");
-    e_jpeg.addItemListener(this::radioButtonSelected);
-    encryptionButtons.add(e_jpeg);
-    gbc = new GridBagConstraints();
-    gbc.gridx = 3;
-    gbc.gridy = 2;
-    gbc.weightx = 1;
-    gbc.fill = GridBagConstraints.HORIZONTAL;
-    panel.add(e_jpeg, gbc);
-  }
-
-
   // convert BufferedImage to byte[]
   public static byte[] toByteArray(BufferedImage bi, String format) throws IOException {
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     ImageIO.write(bi, format, baos);
     return baos.toByteArray();
   }
+
+
+
+  public class ButtonListener implements ChangeListener, ItemListener {
+    /**
+     * Handler for Channel error Slider
+     *
+     * @param e Change Event
+     */
+    public void stateChanged(ChangeEvent e) {
+      JSlider source = (JSlider) e.getSource();
+      if (!source.getValueIsAdjusting()) {
+        if (source.getName().equals("k")) {
+          int k = source.getValue();
+          rtpHandler.setFecGroupSize(k);
+          log.info("New Group size: " + k);
+        } else {
+          lossRate = source.getValue();
+          lossRate = lossRate / 100;
+          log.info("New packet error rate: " + lossRate);
+        }
+      }
+    }
+
+    /**
+     * Handler for encryption RadioButtons.
+     * <p>
+     * The ItemEvent is just fired if a Button is selected
+     * which previous was not.
+     *
+     * @param ev ItemEvent
+     */
+    public void itemStateChanged(ItemEvent ev) {
+      JRadioButton rb = (JRadioButton)ev.getItem();
+      if (rb.isSelected()) {
+        String label = rb.getText();
+        RtpHandler.EncryptionMode mode = RtpHandler.EncryptionMode.NONE;
+
+        switch (label) {
+          case "SRTP":
+            mode = RtpHandler.EncryptionMode.SRTP;
+            break;
+          case "JPEG":
+            mode = RtpHandler.EncryptionMode.JPEG;
+            break;
+          default:
+            break;
+        }
+        boolean encryptionSet = rtpHandler.setEncryption(mode);
+        if (!encryptionSet) {
+          Enumeration<AbstractButton> buttons = view.encryptionButtons.getElements();
+          while (buttons.hasMoreElements()) {
+            AbstractButton ab = buttons.nextElement();
+            if (ab.getText().equals("keine")) {
+              ab.setSelected(true);
+            }
+          }
+        }
+      }
+
+    }
+  } // ButtonListener
 }
