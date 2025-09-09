@@ -62,7 +62,6 @@ public class Server implements ActionListener {
     view = new ServerView( new Server.ButtonListener()  );
   }
 
-
   public static void main(String[] argv) throws Exception {
     CustomLoggingHandler.prepareLogger(log);
     /* set logging level
@@ -76,27 +75,30 @@ public class Server implements ActionListener {
     if (argv.length > 0) {
       RTSPport = Integer.parseInt(argv[0]);  // get RTSP socket port from the command line
     }
-
     if (argv.length > 2) {
       lossRate = Double.parseDouble(argv[1]);
       startGroupSize = Integer.parseInt(argv[2]);
       view.dropRate.setValue((int) (lossRate * 100));
       view.groupSize.setValue(startGroupSize);
     }
+    theServer.handleRequest();
+  }
 
+
+  void handleRequest() throws IOException {
     boolean connection = false;
     int request_type = 0;
 
     while (true) {   // loop to handle RTSP requests
       if (!connection) {
-        connectClient(theServer);
+        connectClient();
         state = INIT;   // Initiate RTSPstate
         view.stateLabel.setText("INIT");
         connection = true;
       }
 
       try {
-        request_type = theServer.rtsp.parse_RTSP_request(); // parse the request -> blocking
+        request_type = rtsp.parse_RTSP_request(); // parse the request -> blocking
       } catch (IOException e) {
         log.info("Server: Socket closed from client side");
         connection = false;
@@ -105,42 +107,42 @@ public class Server implements ActionListener {
       if (connection) switch (request_type) {
         case SETUP:
           // get video meta (frame rate, duration) from file
-          if (theServer.videoMeta == null) {
-            theServer.videoMeta = VideoMetadata.getVideoMetadata(VideoDir, theServer.rtsp.getVideoFileName() );
+          if (videoMeta == null) {
+            videoMeta = VideoMetadata.getVideoMetadata(VideoDir, rtsp.getVideoFileName() );
           }
           // use webcam or file?
-          if (theServer.rtsp.getVideoFileName().endsWith("webcam")) {
+          if (rtsp.getVideoFileName().endsWith("webcam")) {
             webcam = Webcam.getDefault();
             webcam.close();
             webcam.setViewSize(new Dimension(640,480));
             webcam.open();
           } else { // File
             // check for file existence
-            File f = new File(VideoDir + theServer.rtsp.getVideoFileName());
+            File f = new File(VideoDir + rtsp.getVideoFileName());
             if (!f.isFile() || !f.exists()) {
               log.info("File not found");
-              theServer.rtsp.send_RTSP_error_response("404 file not found");
+              rtsp.send_RTSP_error_response("404 file not found");
               break;
             }
-            theServer.video = new VideoReader( VideoDir + theServer.rtsp.getVideoFileName() );
+            video = new VideoReader( VideoDir + rtsp.getVideoFileName() );
           }
 
           // init Timer
-          theServer.timer = new Timer(1000 / theServer.videoMeta.getFramerate(), theServer);
-          theServer.timer.setInitialDelay(0);
-          theServer.timer.setCoalesce(false); // Coalesce can lead to buffer underflow in client
+          timer = new Timer(1000 / videoMeta.getFramerate(), this);
+          timer.setInitialDelay(0);
+          timer.setCoalesce(false); // Coalesce can lead to buffer underflow in client
           // SETUP correct -> send response and change state
           state = READY;
           view.stateLabel.setText("READY");
           log.info("New RTSP state: READY");
-          theServer.rtsp.send_RTSP_response(SETUP, RTP_RCV_PORT );
+          rtsp.send_RTSP_response(SETUP, RTP_RCV_PORT );
           imagenb = 0;
           break;
 
         case PLAY:
           if (state == READY) {
-            theServer.rtsp.send_RTSP_response(PLAY);
-            theServer.timer.start();
+            rtsp.send_RTSP_response(PLAY);
+            timer.start();
             state = PLAYING;
             view.stateLabel.setText("PLAY");
             log.info( "New RTSP state: PLAYING");
@@ -149,8 +151,8 @@ public class Server implements ActionListener {
 
         case PAUSE:
           if (state == PLAYING) {
-            theServer.rtsp.send_RTSP_response(PAUSE);
-            theServer.timer.stop();  // stop timer
+            rtsp.send_RTSP_response(PAUSE);
+            timer.stop();  // stop timer
             state = READY;
             view.stateLabel.setText("READY");
             log.info("New RTSP state: READY");
@@ -160,60 +162,59 @@ public class Server implements ActionListener {
         case TEARDOWN:
           state = INIT;
           view.stateLabel.setText("INIT");
-          theServer.rtsp.send_RTSP_response(TEARDOWN);
-          theServer.timer.stop();
-          theServer.videoMeta = null;
-          theServer.rtpHandler.reset();
-          if (theServer.rtsp.getVideoFileName().endsWith("webcam")) {
+          rtsp.send_RTSP_response(TEARDOWN);
+          timer.stop();
+          videoMeta = null;
+          rtpHandler.reset();
+          if (rtsp.getVideoFileName().endsWith("webcam")) {
             webcam.close();
           }
           break;
 
         case OPTIONS:
           log.info("Options request");
-          theServer.rtsp.send_RTSP_response(OPTIONS);
+          rtsp.send_RTSP_response(OPTIONS);
           break;
 
         case DESCRIBE:
           log.info("DESCRIBE Request");
           // check for file existence
-          File f = new File(VideoDir + theServer.rtsp.getVideoFileName());
+          File f = new File(VideoDir + rtsp.getVideoFileName());
           if (!f.isFile() || !f.exists()) {
             log.info( "File not found");
-            theServer.rtsp.send_RTSP_error_response("404 file not found");
+            rtsp.send_RTSP_error_response("404 file not found");
             break;
           }
 
-          theServer.videoMeta = VideoMetadata.getVideoMetadata(VideoDir, theServer.rtsp.getVideoFileName() );
-          theServer.rtsp.setVideoMeta(theServer.videoMeta);
-          log.info("Video Meta: " + theServer.videoMeta.toString());
-          theServer.rtsp.send_RTSP_response(DESCRIBE);
+          videoMeta = VideoMetadata.getVideoMetadata(VideoDir, rtsp.getVideoFileName() );
+          rtsp.setVideoMeta(videoMeta);
+          log.info("Video Meta: " + videoMeta.toString());
+          rtsp.send_RTSP_response(DESCRIBE);
           break;
 
         default:
           log.warning("Wrong request");
       }
     }
+
   }
 
-  private static void printUsage() {
-    System.out.println("usage: java Server [RTSP listening port] [packet loss rate] [FEC group size]");
-  }
 
-  private static void connectClient(Server server) throws IOException {
+
+  private void connectClient() throws IOException {
     // Initiate TCP connection with the client for the RTSP session
     ServerSocket listenSocket = new ServerSocket(RTSPport);
     RTSPsocket = listenSocket.accept();
     log.info("Client connected: " + RTSPsocket.getInetAddress());
     listenSocket.close();
-    server.ClientIPAddr = RTSPsocket.getInetAddress();   // Get Client IP address
+    ClientIPAddr = RTSPsocket.getInetAddress();   // Get Client IP address
 
     // Set input and output stream filters:
     RTSPBufferedReader =
         new BufferedReader(new InputStreamReader(RTSPsocket.getInputStream()));
     RTSPBufferedWriter =
         new BufferedWriter(new OutputStreamWriter(RTSPsocket.getOutputStream()));
-    server.rtsp = new Rtsp(RTSPBufferedReader, RTSPBufferedWriter);
+    rtsp = new Rtsp(RTSPBufferedReader, RTSPBufferedWriter);
   }
 
 
@@ -257,6 +258,9 @@ public class Server implements ActionListener {
     return baos.toByteArray();
   }
 
+  private static void printUsage() {
+    System.out.println("usage: java Server [RTSP listening port] [packet loss rate] [FEC group size]");
+  }
 
 
   public class ButtonListener implements ChangeListener, ItemListener {
