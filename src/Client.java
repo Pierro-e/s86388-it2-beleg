@@ -43,7 +43,8 @@ public class Client  {
      * Level.ALL: debugging information (headers, received packages and so on)
      */
     log.setLevel(Level.FINER);
-
+    // Colored console output set explicitly, some levels already have a color
+    log.config(CustomLoggingHandler.ANSI_BLUE +"Client started." + CustomLoggingHandler.ANSI_RESET);
     Client theClient = new Client();  // Create a Client object
 
     // get the URL from the command line and show it in the GUI
