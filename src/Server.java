@@ -135,6 +135,7 @@ public class Server implements ActionListener {
           state = READY;
           view.stateLabel.setText("READY");
           log.info("New RTSP state: READY");
+          view.fileLabel.setText(rtsp.getVideoFileName() + " : " + videoMeta.getFramerate() + " fps");
           rtsp.send_RTSP_response(SETUP, RTP_RCV_PORT );
           imagenb = 0;
           break;
@@ -162,6 +163,7 @@ public class Server implements ActionListener {
         case TEARDOWN:
           state = INIT;
           view.stateLabel.setText("INIT");
+          view.fileLabel.setText("No file selected");
           rtsp.send_RTSP_response(TEARDOWN);
           timer.stop();
           videoMeta = null;
@@ -241,7 +243,7 @@ public class Server implements ActionListener {
 
     if (jpegFrame != null) {
       log.fine("image nr.:" + imagenb + " size: " + jpegFrame.length);
-      view.label.setText("Send frame #" + imagenb);   // update GUI
+      view.frameLabel.setText("Send frame: " + imagenb);   // update GUI
 
       rtpHandler.sendJpeg(jpegFrame, videoMeta.getFramerate(), ClientIPAddr,
           rtsp.getRTP_dest_port(), lossRate);

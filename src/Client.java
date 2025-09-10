@@ -171,7 +171,9 @@ public class Client  {
 
     private void setStatistics(ReceptionStatistic rs) {
       DecimalFormat df = new DecimalFormat("0.000");
-      view.pufferLabel.setText("Puffer (JPEG / RTP): " + rs.jitterBufferSize + " / " + (rs.latestSequenceNumber - rs.playbackIndex));
+      view.pufferLabel.setText("Puffer (JPEG / RTP): " +
+          rs.jitterBufferSize + " / " + (rs.latestSequenceNumber - rs.playbackIndex) +"   =>  Delay: " +
+          (1000 / rtsp.getFramerate()) * rs.jitterBufferSize + " ms"   );
 
       view.receiveLabel.setText("empfangenes RTP mit SeqNr: " + rs.latestSequenceNumber);
       view.receiveLabel2.setText("Summe empfangene RTPs: " + rs.receivedPackets);
