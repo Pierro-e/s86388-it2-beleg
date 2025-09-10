@@ -1,8 +1,11 @@
 # Projektrahmen
 Im Praktikum werden Sie einen Client und Server für Videostreaming unter Nutzung des Real-Time-Streaming-Protokolls [RTSP](http://www.ietf.org/rfc/rfc2326.txt) implementieren. 
-Die eigentlichen Videodaten werden mittels Real-Time-Protokoll [RTP](http://www.ietf.org/rfc/rfc3550.txt) übertragen. Ein großer Teil der Funktionalität ist bereits als Quelltext vorhanden, so das RTSP-Protokoll für den Server, das RTP-Handling im Client sowie die Videoanzeige.
+Die eigentlichen Videodaten werden mittels Real-Time-Protokoll [RTP](http://www.ietf.org/rfc/rfc3550.txt) übertragen. 
+
+
+Ein großer Teil der Funktionalität ist bereits als Quelltext vorhanden, so das RTSP-Protokoll für den Server, das RTP-Handling im Client sowie die Videoanzeige.
 Ihre Aufgabe besteht im Wesentlichen aus der Ergänzung der Quellcodes in den Punkten:
-* RTSP-Protokoll: Butto-Handler + Request vervollständigen
+* RTSP-Protokoll: Button-Handler + RTSP-Request für den Client vervollständigen
 * RTP-Protokoll: Headerdaten konfigurieren
 * FEC-Protokoll: Paketkorrektur implementieren
 * JPEG-Anzeige: Fehlerverdeckung im Client implementieren
@@ -42,37 +45,98 @@ Die bereitgestellten Kassen mit der Endung `Demo` sind abstrakte Klassen, die no
 * [utils.CustomLoggingHandler](src/utils/CustomLoggingHandler.java): Anpassung der Logger-Ausgaben für minimalen Overhead
 
 
-## 2. Programmstart
+## 2. Programmstart und -nutzung
+### Server
 Der Start des Servers erfolgt mittels `java Server RTSP-Port`. Der Standard-RTSP-Port ist 554, da Sie aber im Praktikum einen Port > 1024 nutzen müssen, bietet sich der alternative Port 8554 an. 
 Sie können den Server auch mit den optionalen Parametern `java Server RTSP-Port lossRate groupSize` starten um die FEC-Optionen schon beim Progammstart zu konfigurieren.
 
-Der Start des Clients erfolgt mittels Übergabe der URL: `java Client rtsp://server:port/video_file`. Am Client können RTSP-Kommandos angefordert werden. 
-Eine RTSP-Kommunikation läuft in der Regel folgendermaßen ab:  
-1. Client fragt vorhandene Servermethoden mittels OPTIONS ab.
-2. Client sendet DESCRIBE: Analyse der vorhandenen Streams und Parameter einer gewünschten Präsentation
-3. Client sendet SETUP: Erzeugung der Session und der Transportparameter anhand der vorab ermittelten Parameter
-4. Client sendet PLAY 
-5. Client sendet u.U. PAUSE
-6. Client sendet TEARDOWN: Terminierung der Session.
-Der Server antwortet auf alle Clientrequests. Die Antwortcodes sind ähnlich zu HTTP. Der Code 200 bedeutet z.B. Erfolg. Die RTSP-Antwortcodes finden Sie in [RTSP](http://www.ietf.org/rfc/rfc2326.txt).
+Der Server besitzt zwei Schieberegler welche den Kanal beeinflussen und die FEC-Gruppengröße festlegen.
+* oben: genutzte FEC-Gruppengröße (2-48)
+* unten: erzeugte Paketverlustrate (0-100%) 
+
+Das Auswahlfeld für die Verschlüsselung sollte auf keine gesetzt bleiben.
+Angezeigt werden in der GUI weiterhin die aktuell gesendete Bildnummer (send frame) und der aktuelle RTSP-Zustand. 
+
+![Server](/images/server.png)
+
+### Client
+Der Start des Clients erfolgt mittels Übergabe der URL: `java Client rtsp://server:port/video_file`. 
+Der Server sucht automatisch nach dem angegebenen Video in seinen Ordner videos. Ein Verzeichnis ist nicht anzugeben!
+Bei Angabe des Videos mit dem Namen webcam wird der Server eine angeschlossene Webcam anstatt einer Datei verwenden.
+
+Die in der Kommandozeile angegebene URL werden in der GUI in einem Eingabefeld angezeigt und kann dort auch verändert werden.
+
+Verschlüsselung:  
+wird z.Z.  nicht verwendet und sollte somit auf keine gesetzt bleiben. 
+
+Felder:
+* FEC: FEC wird im Client ausgewertet oder nicht
+* ECO: Error Concealment (Fehlerverdeckung) wird im Client genutzt oder nicht 
+* Puffergröße: Größe des Jitter-Puffers gemessen in Bildern
+
+Anzeige (Zeile):
+1. RTSP-Zustand  
+Pufferfüllstand des Clients (in Bildern und korrespondierenden RTPs)
+2. aktuell empfangenes RTP-Paket  
+Summe der empfangenen RTPs
+3. aktuell bearbeitete RTP-Nummer und Anzahl der bisher verlorenen RTPs  
+aktuelle Bildnummer und Anzahl der unvollständigen und fehlenden Bilder
+4. Anzahl wiederhergestellter und nicht wiederhergestellter RTPs beim Einsatz von FEC  
+Paketfehlerrate (fehlende Pakete / übertragene Pakete) vor Einsatz von FEC und nach Einsatz von FEC (Im Beispiel ergibt sich eine Verbesserung von 10% auf 2% durch FEC)
+
+Es gelten folgende Zusammenhänge: Die aktuelle empfangene RTP-Nummer ergibt sich aus RTP-Puffergröße und dem aktuellen RTP-Index sowie aus der Summe der empfangenen RTPs plus der verlorenen RTPs.   
+ 
+Progressbar:    
+* Puffergröße
+* Übertragungsfortschritt (Bildnummer)
+
+Im Bild selbst werden in der oberen linken Ecke die aktuelle Bildnummer und eventuell fehlende Bildsegmente angezeigt (im Beispiel fehlt das Segment Nr. 18 und der Bereich wird grau dargestellt). 
+Das HTW-Demovideo beinhaltet insgesamt 2808 Bilder welche aus 64607 RTPs bestehen. 
+
+Serverantworten:  
+Die Antworten des Servers auf Clientrequests werden in der Konsole angezeigt. Dazu ist es hilfreich, beim Einsatz einer IDE zwischen den Konsolenfenstern von Client und Server zu wechseln.
+
+![Client](/images/client.png)
 
 ## 3. Client
-Als ersten Schritt sollte das RTSP-Protokoll in der entsprechenden Klasse vervollständigt werden. Für die RTSP-Kommunikation mit dem Server wird der bereits geöffnete Socket verwendet. In jeden Request muss ein CSeq-Header eingefügt werden. Der Wert von CSeq erhöht sich bei jedem Senderequest.
 
-### Setup
+Eine RTSP-Kommunikation wird vom Client gesteuert und läuft in der Regel folgendermaßen ab:
+1. Client verbindet sich mit einem Server
+2. Client fragt vorhandene RTSP-Servermethoden mittels OPTIONS ab.
+3. Client sendet DESCRIBE für das gewünschte Video: Analyse der vorhandenen Streams und Parameter einer gewünschten Präsentation/Video
+4. Client sendet SETUP für das gewünschte Video: Erzeugung der Session und der Transportparameter anhand der vorab ermittelten Parameter
+5. Client sendet PLAY für Session
+6. Client sendet u.U. PAUSE für Session
+7. Client sendet TEARDOWN: Terminierung der Session.
+
+Nach einer Terminierung der Session bleibt der Client mit dem Server verbunden und es kann eine neue Session gestartet werden.
+
+In jeden Client-Request wird ein CSeq-Header (Kommando-Sequenznummer) eingefügt, bei jedem Request wird dieser Wert erhöht.
+Der Server antwortet auf die Client-Requests mit einer dazu passenden Sequenznummer. Die Antwortcodes sind ähnlich zu HTTP. Der Code 200 bedeutet z.B. Erfolg. Die RTSP-Antwortcodes finden Sie in [RTSP](http://www.ietf.org/rfc/rfc2326.txt).
+
+### OPTIONS
+* Abfrage der implementierten Servermethoden
+* URL kann unspezifisch sein (*)
+* Einlesen der RTSP-Antwort
+
+### DESCRIBE
+* Abfrage der Parameter des gewünschten Videos
+* Einlesen der RTSP-Antwort
+
+### SETUP
 * Erzeugen eines Sockets für den Empfang der RTP-Pakete und setzen des Timeouts (5 ms)
 * Senden des SETUP-Requests an den Server, Ergänzung des Transportheaders mit dem geöffneten RTP-Port.
 * Einlesen der RTSP-Antwort vom Server und parsen des Sessionheaders für die Session-ID
 
-### Play
+### PLAY
 * Senden des PLAY-Requests mit Sessionheader und Session-ID (kein Transportheader)
 * Einlesen der RTSP-Antwort
 
-### Pause
+### PAUSE
 * Senden des PAUSE-Requests mit Sessionheader und Session-ID
 * Einlesen der RTSP-Antwort
 
-### Teardown
+### TEARDOWN
 * Senden des TEARDOWN-Requests mit Sessionheader und Session-ID
 * Einlesen der RTSP-Antwort
 
@@ -115,7 +179,7 @@ C: SETUP rtsp://idefix/htw.mjpeg/trackID=0 RTSP/1.0
 
 S: RTSP/1.0 200 OK
  : CSeq: 3
- : Transport: RTP/AVP;unicast;client_port=25000-250001;server_port=3333-3334
+ : Transport: RTP/AVP;unicast;client_port=25000-25001;server_port=5004-5005
  : Session: 123456;timeout=30000
 
  
@@ -140,6 +204,9 @@ S: RTSP/1.0 200 OK
 C: TEARDOWN rtsp://idefix/htw.mjpeg RTSP/1.0
  : CSeq: 6
  : Session: 123456
+ 
+S: RTSP/1.0 200 OK
+ : CSeq: 6
 ```
 
 ### Zustände des Clients
