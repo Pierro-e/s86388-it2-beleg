@@ -54,6 +54,7 @@ In der Konsole des Clients wird die implementierte SDP-Antwort angezeigt.
 
 Es ist ausreichend, sich bei der DESCRIBE-Methode auf das Beispielvideo zu beziehen und die Antwort auf dem Server statisch zu hinterlegen. 
 Ausgewertet werden die u.a. die Parameter `framerate` und `range`.
+Auch wenn momentan nur ein MJPEG-Stream (PT-26) nutzbar ist, sollte das SDP außerdem einen H.264-Stream und einen G.711-Audio-Stream anbieten, um die Möglichkeiten von SDP zu demonstrieren. Der Identifierer trackID=0 soll dabei für den MJPEG-Stream stehen. Nach Implementierung der FEC-Methoden sollten diese FEC-Informationen noch zum SDP hinzugefügt werden, um einem beliebigen standardkonformen Client zu ermöglich, FEC zu nutzen.
 
 ### 3. RTP-Protokoll
 Programmieren Sie die Methode setRtpHeader() der Klasse `rtp.RtpPacket` entsprechend der Projektbeschreibung und den Kommentaren im Quelltext der abstrakten Klasse gegebenen Hinweisen.
