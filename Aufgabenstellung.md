@@ -139,7 +139,8 @@ Sie müssen die Simulation nicht immer bis zum Ende ablaufen lassen, der Ergebni
 #### 6.3. Abschätzung der zu erwartenden Verlustraten mittels theoretischer Betrachtung
 Versuchen Sie, mathematisch die Paketverlustwahrscheinlichkeit für die obigen Gruppengrößen zu bestimmen und ebenfalls grafisch darzustellen. 
 Sie können von dem Zusammenhang zwischen Guppenfehler und Kanalfehler ausgehen (Folie FEC-Einführung Seite 11). Zu beachten ist allerdings, dass wir hier die Paketverlustwahrscheinlichkeit und nicht die Gruppenverlustwahrscheinlichkeit benötigen. 
-Eine Näherungsformel für kleine Fehlerraten ist hier ausreichend.
+Eine Näherungsformel für kleine Fehlerraten ist hier ausreichend. Ein einfacher Zusammenhang ergibt sich durch die Multiplikation der Gruppenfehlerwahrscheinlichkeit mit dem Term: dmin / k, siehe dazu auch [Formel 3.7.3](https://www.berndfriedrichs.de/downloads_kc/bconeu_gekuerzt_auf_Vorlesung.pdf)
+
 
 #### 6.4 Abschätzung der Bilddefektwahrscheinlichkeit
 Stellen Sie weiterhin die Wahrscheinlichkeit für einen Bilddefekt dar, wenn von folgenden hypothetischen Übertragungsmodies ausgegangen wird: 1 RTP/Bild, 5 RTPs/Bild und 20 RTPs/Bild.
@@ -178,8 +179,8 @@ Führen Sie mit dem so behandelten Codewort eine RS-Ausfallstellenkorrektur durc
 
 #### Programmierung
 Nutzen Sie die Java-Bibliothek um die vorherige Berechnung zu programmieren.
-Anstatt des obigen Codes nutzen Sie hier einen verkürzten RS(7,5,3)_256-Code.
-Das Ergebnis dieser Teilaufgabe ist eine Klasse, welche die Encoder- udn Decoderfunktionen des Frameworks nutzt und die geforderte Berechnung durchführt.
+Anstatt des obigen Codes können Sie hier auch einen verkürzten RS(7,5,3)_256-Code nutzen.
+Das Ergebnis dieser Teilaufgabe ist eine Klasse, welche die Encoder- und Decoderfunktionen des Frameworks nutzt und die geforderte Berechnung durchführt.
 
 ### 10. Dokumentation
 Fügen Sie dem Projekt eine Dokumentationsdatei mit den Lösungen und den Erkenntnissen aus der Belegbearbeitung hinzu. Diese Dokumentation kann als Markdown-Datei angelegt werden, wobei sie mit Github anzeigbar sein muss. Alternativ legen Sie die Dokumentation als PDF bei.
