@@ -164,6 +164,8 @@ Dazu dient die Methode setTransparency der Klasse `JpegDisplay` (abgeleitet von 
 Versuchen Sie anhand dieser Informationen das aktuelle Bild so zu modifizieren, dass Fehler möglichst wenig stören.
 Bei welcher Paketfehlerwahrscheinlichkeit ist das Video mit Fehlerkaschierung und FEC (k=2) noch in guter Qualität darstellbar?
 
+Das Demovideo hat eine Auflösung von 640 x 360 Pixeln und basiert auf MCUs von 16x16 Pixeln. Die Restartmarker wurden für jede MCU-Zeile codiert. Dies ergibt 23 unabhängige MCU-Zeilen pro Bild, welche jeweils per separatem RTP verschickt werden. Ein RTP-Paketverlust bedeutet somit in dieser Konstellation das Fehlen von genau einer MCU-Zeile.
+
 ### 9. RS-Coding
 Im Beleg ist nur eine einfache Ausfallstellenkorrektur basierend auf Parity-Check-Codes implementiert.
 In dieser Aufgabe sollen Sie eine komplexere Ausfallstellenkorrektur betrachtet und genutzt werden.
