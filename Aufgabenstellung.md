@@ -183,7 +183,7 @@ Stellen Sie den gesamten Rechenweg nachvollziehbar dar.
 #### Programmierung
 Nutzen Sie die Java-Bibliothek um die vorherige Berechnung zu programmieren.
 Den in der obigen Rechnung verwendeten Code müssen Sie der Klasse GenericGF noch manuell hinzufügen.
-Das Ergebnis dieser Teilaufgabe ist eine Klasse, welche die Encoder- und Decoderfunktionen des Frameworks nutzt und die geforderte Berechnung durchführt.
+Das Ergebnis dieser Teilaufgabe ist eine Klasse, welche die Encoder- und Decoderfunktionen des Frameworks nutzt und die geforderte Berechnung durchführt. Wenn alles passt, sollte sich ein identisches Ergebnis zur vorherigen manuellen Lösung ergeben. (manchmal ist die Symbolreihenfolge andersherum definiert)
 Dokumentieren Sie die Berechnungsschritte des erstellen Programms.
 
 ### 10. Dokumentation
