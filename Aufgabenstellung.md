@@ -174,15 +174,17 @@ Dazu wird zunächst ein RS(7,5,3)_8-Code mit dem Polynom x³+x+1 genutzt.
 #### Berechnung
 Nutzen Sie als Infowort die 5 Ziffern Ihrer S-Nummer, wobei Sie die Ziffern jeweils modulo 8 behandeln.
 Codieren Sie dieses Infowort.
-Löschen Sie zwei Symbole aus dem generierten Code. 
-Die Position der zwei zu löschenden Symbole ergibt sich aus den beiden letzten Ziffern Ihrer S-Nummer modulo 5 (Position 0-4). 
+Testen Sie die Ausfallstellencodeirung indem Sie zwei Symbole aus dem generierten Code lsöchen. 
+Die Position der zwei zu löschenden Symbole ergibt sich aus den beiden letzten Ziffern Ihrer S-Nummer modulo 7 (Position 0-6). 
 Sind die beiden Werte identisch, nehmen Sie zusätzlich den nachfolgenden Wert. 
 Führen Sie mit dem so behandelten Codewort eine RS-Ausfallstellenkorrektur durch.
+Stellen Sie den gesamten Rechenweg nachvollziehbar dar.
 
 #### Programmierung
 Nutzen Sie die Java-Bibliothek um die vorherige Berechnung zu programmieren.
-Anstatt des obigen Codes können Sie hier auch einen verkürzten RS(7,5,3)_256-Code nutzen.
+Den in der obigen Rechnung verwendeten Code müssen Sie der Klasse GenericGF noch manuell hinzufügen.
 Das Ergebnis dieser Teilaufgabe ist eine Klasse, welche die Encoder- und Decoderfunktionen des Frameworks nutzt und die geforderte Berechnung durchführt.
+Dokumentieren Sie die Berechnungsschritte des erstellen Programms.
 
 ### 10. Dokumentation
 Fügen Sie dem Projekt eine Dokumentationsdatei mit den Lösungen und den Erkenntnissen aus der Belegbearbeitung hinzu. Diese Dokumentation kann als Markdown-Datei angelegt werden, wobei sie mit Github anzeigbar sein muss. Alternativ legen Sie die Dokumentation als PDF bei.
