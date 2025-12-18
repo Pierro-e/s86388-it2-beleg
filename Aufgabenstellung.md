@@ -184,7 +184,7 @@ Stellen Sie den gesamten Rechenweg nachvollziehbar dar.
 Nutzen Sie die [Java-Bibliothek](https://github.com/zxing/zxing/tree/master/core/src/main/java/com/google/zxing/common/reedsolomon) um die vorherige Berechnung zu programmieren.
 Den in der obigen Rechnung verwendeten Code müssen Sie der Klasse GenericGF noch manuell hinzufügen.
 Das Ergebnis dieser Teilaufgabe ist eine Klasse, welche die Encoder- und Decoderfunktionen des Frameworks nutzt und die geforderte Berechnung durchführt. Wenn alles passt, sollte sich ein identisches Ergebnis zur vorherigen manuellen Lösung ergeben. (manchmal ist die Symbolreihenfolge andersherum definiert)
-Dokumentieren Sie die Berechnungsschritte des erstellen Programms.
+Dokumentieren Sie die Berechnungsschritte des erstellen Programms (Infowort, Codewort, Auslöschung, Korrektur).
 
 ### 10. Dokumentation
 Fügen Sie dem Projekt eine Dokumentationsdatei mit den Lösungen und den Erkenntnissen aus der Belegbearbeitung hinzu. Diese Dokumentation kann als Markdown-Datei angelegt werden, wobei sie mit Github anzeigbar sein muss. Alternativ legen Sie die Dokumentation als PDF bei.
