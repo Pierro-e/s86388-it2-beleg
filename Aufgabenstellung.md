@@ -23,7 +23,7 @@ Die Aufgaben beziehen sich auf den Beleg Videostreaming für das Modul Internett
 Im weiteren wird davon ausgegangen, dass die IDE Intellij verwendet wird.
 
 ### 0. Vorarbeiten
-1. Clonen des Projekt aus dem Repository, Anleitung: [Git](git.md).
+1. Klonen des Projekts aus dem Repository, Anleitung: [Git](git.md).
 2. Konfiguration der Projektabhängigkeiten in der IDE:
   * Projekt-Structure -> Modules -> Reiter Dependencies
   * Add (+) -> 2 Library -> Maven
@@ -32,7 +32,7 @@ Im weiteren wird davon ausgegangen, dass die IDE Intellij verwendet wird.
     * Webcam: com.github.sarxos:webcam-capture:0.3.12
     * JUnit:  org.junit.jupiter:junit-jupiter:5.9.0
 3. Sie erstellen die "leeren" Klassen `rtsp.Rtsp`, `rtp.RtpPacket`, `rtp.FecHandler` und `JpegDisplay` und leiten diese aus den abstrakten Klassen `rtsp.RtspDemo`, `rtp.RtpPacketDemo`, `FecHandlerDemo` und `JpegDisplayDemo` ab (Stichwort `extends`).  Das Projekt sollte danach kompilierbar und ausführbar sein.  
-Unter einigen IDEs z.B. IntelliJ können Sie die Klassenrümpfe automatisch erstellen lassen mittels: Generate Contructors sowie implement Methods
+Unter einigen IDEs z.B. IntelliJ können Sie die Klassenrümpfe automatisch erstellen lassen mittels: Generate Constructors sowie implement Methods
 4. Sie konfigurieren die Kommandozeilenparameter für Client und Server wie in der [Projektbeschreibung](Projektbeschreibung.md#2.-programmstart) beschrieben.
 5. Sie erstellen in Ihrem Gitverzeichnis ein Unterverzeichnis mit dem Namen `videos` und legen in dieses das Beispielvideo `htw.mjpeg`, siehe Praktikumsdateien auf der HTW-IT2-Homepage.
 
@@ -66,7 +66,7 @@ Sie können an der GUI des Servers eine Paketfehlerwahrscheinlichkeit einstellen
 Dokumentieren Sie, ab welcher Paketfehlerwahrscheinlichkeit die Videoanzeige spürbar beeinträchtigt wird.
 
 Das RTP-Streaming ist so konfiguriert, dass ein JPEG-Bild in mehrere RTPs verpackt wird. 
-Berechnen die Wahrscheinlichkeit für den Verlust eines Bildes in Abhängigkeit von der Kanalverlustrate, wenn pro Bild 1, 2, 5, 10 oder 20 RTPs versendet werden.
+Berechnen Sie die Wahrscheinlichkeit für den Verlust eines Bildes in Abhängigkeit von der Kanalverlustrate, wenn pro Bild 1, 2, 5, 10 oder 20 RTPs versendet werden.
 Von einem Bildverlust ist dabei auszugehen, wenn mindestens ein RTP der RTPs für ein Bild fehlt.
 Nutzen Sie zur grafischen Darstellung das Programm Gnuplot. Eine Demodatei befindet sich im Projektverzeichnis `statistics`. 
 
@@ -95,7 +95,7 @@ Eine Übersicht über die relevanten Datenstrukturen und ein Beispiel ist hier z
 * Kanalemulator jeweils für Medien- und FEC-Pakete aufrufen: `sendPacketWithError()`
 
 ##### Client
-* Der Client nutzt einen Thread für den Empfang der RTP-Pakete und einen Timer für das periodische Anzeigen der Bilder un der GUI.
+* Der Client nutzt einen Thread für den Empfang der RTP-Pakete und einen Timer für das periodische Anzeigen der Bilder in der GUI.
 * Pakete empfangen per Receiver-Thread: `RtpHandler.Receiver`
 * Pakete im Jitterpuffer speichern: `RtpHandler.processRtpPacket()`
 * Statistiken aktualisieren
@@ -106,7 +106,7 @@ Eine Übersicht über die relevanten Datenstrukturen und ein Beispiel ist hier z
 ##### RtpHandler
 * Server
     * Registrierung eines RTP-Paketes im FecHandler bei dessen Erstellung
-    * Abruf fertiggestellter FEC-Pakete über den FeCHandler
+    * Abruf fertiggestellter FEC-Pakete über den FecHandler
 * Client
     * Speicherung ankommender RTP-Pakete getrennt nach PayloadType (JPEG-Pakete im RtpHandler, FEC-Pakete im FecHandler)
     * Bei Anfrage des nächsten Bildes Generierung einer Liste aller RTP-Pakete für dieses Bild (gleicher Timestamp)
@@ -120,7 +120,7 @@ Eine Übersicht über die relevanten Datenstrukturen und ein Beispiel ist hier z
 ##### FecPacket
 * Ableitung aus vorhandenem RtpPacket
 * Sender: Konstruktor zur Generierung eines FEC-Objektes aus Media-RTPs
-* Empfänger: Konstruktur zur Generierung eines FEC-Objektes aus einem empfangenen FEC-RTP
+* Empfänger: KonstruktFr zur Generierung eines FEC-Objektes aus einem empfangenen FEC-RTP
 * getRtpList: Ermittlung aller in einem FEC involvierten Media-RTPs
 * getPacket: Holt komplettes FEC-Paket als Bytearray
 * addRtp: fügt ein Media-RTP zum FEC-Objekt hinzu, inklusive aller notwendigen Berechnungen
@@ -133,17 +133,17 @@ Untersuchen Sie, welche Verlustrate der RTP-Pakete nach der FEC-Decodierung (k=2
 
 #### 6.2. Bestimmung der Verlustraten mittels Simulation
 Tragen Sie die mittels Messung (Simulation) zu gewinnenden Paketverlustwahrscheinlichkeiten nach FEC (Restfehler) für verschiedene Kanalfehlerraten (Pe = 0...1) und verschiedene Gruppengrößen (k=2, 6, 12, 48) in dem bereits vorhandenen Gnuplot-Diagramm auf. 
-Besonders interessant ist der Bereich mit geringen Fehleraten (0 -- 0,2). Die Restfehlerwahrscheinlichkeit können Sie direkt in den Statistikangaben ablesen (Ratio nach FEC). 
+Besonders interessant ist der Bereich mit geringen Fehlerraten (0 -- 0,2). Die Restfehlerwahrscheinlichkeit können Sie direkt in den Statistikangaben ablesen (Ratio nach FEC). 
 Sie müssen die Simulation nicht immer bis zum Ende ablaufen lassen, der Ergebniswert sollte allerdings stabil sein und das Ratio vor FEC der gewüschten Kanalfehlerrate entsprechen.
 
 #### 6.3. Abschätzung der zu erwartenden Verlustraten mittels theoretischer Betrachtung
 Versuchen Sie, mathematisch die Paketverlustwahrscheinlichkeit für die obigen Gruppengrößen zu bestimmen und ebenfalls grafisch darzustellen. 
-Sie können von dem Zusammenhang zwischen Guppenfehler und Kanalfehler ausgehen (Folie FEC-Einführung Seite 11). Zu beachten ist allerdings, dass wir hier die Paketverlustwahrscheinlichkeit und nicht die Gruppenverlustwahrscheinlichkeit benötigen. 
+Sie können von dem Zusammenhang zwischen Gruppenfehler und Kanalfehler ausgehen (Folie FEC-Einführung Seite 11). Zu beachten ist allerdings, dass wir hier die Paketverlustwahrscheinlichkeit und nicht die Gruppenverlustwahrscheinlichkeit benötigen. 
 Eine Näherungsformel für kleine Fehlerraten ist hier ausreichend. Ein einfacher Zusammenhang ergibt sich durch die Multiplikation der Gruppenfehlerwahrscheinlichkeit mit dem Term: dmin / k, siehe dazu auch [Formel 3.7.3](https://www.berndfriedrichs.de/downloads_kc/bconeu_gekuerzt_auf_Vorlesung.pdf)
 
 
 #### 6.4 Abschätzung der Bilddefektwahrscheinlichkeit
-Stellen Sie weiterhin die Wahrscheinlichkeit für einen Bilddefekt dar, wenn von folgenden hypothetischen Übertragungsmodies ausgegangen wird: 1 RTP/Bild, 5 RTPs/Bild und 20 RTPs/Bild.
+Stellen Sie weiterhin die Wahrscheinlichkeit für einen Bilddefekt dar, wenn von folgenden hypothetischen Übertragungsmodi ausgegangen wird: 1 RTP/Bild, 5 RTPs/Bild und 20 RTPs/Bild.
 
 Für die eigentlichen Berechnungen können Sie statt Gnuplot auch R oder ein anderes Tool nutzen.
 Diskutieren Sie eventuelle Unterschiede der praktisch und theoretisch ermittelten Ergebnisse.
@@ -152,13 +152,15 @@ Für diese Aufgabe unterstützt Sie die Statistik am [Empfänger](Projektbeschre
 
 
 ### 7. Generierung von Restart-Markern
+Restart-Marker sind notwendig für eine sinnvolle Fehlerkaschierung, da damit Teile eines ansonsten komplett fehlerhaften Jpeg-Bildes dekodiert und angezeigt werden können.
+
 Nutzen Sie das bereitgestellte Jpeg-Bild und erzeugen Sie Restart-Marker für jede MCU-Zeile in diesem Bild.
 Nutzen Sie hierfür das auf den Praktikumsrechnern vorhandene Tool `jpegtran`.
 Manipulieren Sie mit einem Hexeditor (z.B. bless oder ghex) eine Zeile im Bild und vergleichen Sie sich das Ergebnis mit dem Originalbild ohne Restart-Marker, bei welchen Sie ebenfalls Manipulationen vorgenommen haben.
 Welche Erkenntnis können Sie aus dem Vergleich gewinnen?
 Betrachten Sie das Demovideo bei 10% Paketverlustrate einmal mit und einmal ohne Restart-Marker. Dokumentieren Sie den visuellen Unterschied der jeweiligen Bildstörungen.
 
-### 8. Fehlerkaschierung
+### 8. Fehlerkaschierung  
 Damit trotz Fehlerkorrektur fehlende Pakete nicht zu einem störenden Bild führen, ist eine Fehlerkaschierung zu implementieren.
 Dazu dient die Methode setTransparency der Klasse `JpegDisplay` (abgeleitet von `JpegDisplayDemo`). Dieser wird das aktuelle Bild und das Vorgängerbild übergeben, sowie eine Liste an fehlenden Bildteilen. Dies funktioniert nur mit MJPEG-Videos, welche Restart-Marker beinhalten.
 Versuchen Sie anhand dieser Informationen das aktuelle Bild so zu modifizieren, dass Fehler möglichst wenig stören.
@@ -188,7 +190,7 @@ Dokumentieren Sie die Berechnungsschritte des erstellen Programms (Infowort, Cod
 
 ### 10. Dokumentation
 Fügen Sie dem Projekt eine Dokumentationsdatei mit den Lösungen und den Erkenntnissen aus der Belegbearbeitung hinzu. Diese Dokumentation kann als Markdown-Datei angelegt werden, wobei sie mit Github anzeigbar sein muss. Alternativ legen Sie die Dokumentation als PDF bei.
-Manchen Sie konkrete Vorschläge um den Beleg in Zukunft interessanter zu machen.
+Machen Sie konkrete Vorschläge um den Beleg in Zukunft interessanter zu machen.
 
 
 ### Hinweise
