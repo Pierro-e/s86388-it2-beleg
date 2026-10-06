@@ -3,7 +3,7 @@ Im Praktikum werden Sie einen Client und Server für Videostreaming unter Nutzun
 Die eigentlichen Videodaten werden mittels Real-Time-Protokoll [RTP](http://www.ietf.org/rfc/rfc3550.txt) übertragen. 
 
 
-Ein großer Teil der Funktionalität ist bereits als Quelltext vorhanden, so das RTSP-Protokoll für den Server, das RTP-Handling im Client sowie die Videoanzeige.
+Ein großer Teil der Funktionalität ist bereits als Quelltext vorhanden, so z.B. das RTSP-Protokoll für den Server, das RTP-Handling im Client sowie die Videoanzeige.
 Ihre Aufgabe besteht im Wesentlichen aus der Ergänzung der Quellcodes in den Punkten:
 * RTSP-Protokoll: Button-Handler + RTSP-Request für den Client vervollständigen
 * RTP-Protokoll: Headerdaten konfigurieren
@@ -12,7 +12,7 @@ Ihre Aufgabe besteht im Wesentlichen aus der Ergänzung der Quellcodes in den Pu
 
 ## 1. Java-Klassen
 Das Projekt besteht aus mehreren Java-Klassen, die je nach Funktionsumfang für Client, Server oder auch beide Anwendungen eingesetzt werden.
-Die bereitgestellten Kassen mit der Endung `Demo` sind abstrakte Klassen, die noch ausprogrammiert werden müssen und den Klassennamen ohne `Demo` erhalten.
+Die bereitgestellten Klassen mit der Endung `Demo` sind abstrakte Klassen, die noch ausprogrammiert werden müssen und den Klassennamen ohne `Demo` erhalten.
 
 ### Server-seitige Klassen
 * [Server](src/Server.java): Funktionalität des Servers zur Antwort auf die RTSP-Clientanfragen und Streaming des Videos
@@ -48,9 +48,9 @@ Die bereitgestellten Kassen mit der Endung `Demo` sind abstrakte Klassen, die no
 ## 2. Programmstart und -nutzung
 ### Server
 Der Start des Servers erfolgt mittels `java Server RTSP-Port`. Der Standard-RTSP-Port ist 554, da Sie aber im Praktikum einen Port > 1024 nutzen müssen, bietet sich der alternative Port 8554 an. 
-Sie können den Server auch mit den optionalen Parametern `java Server RTSP-Port lossRate groupSize` starten um die FEC-Optionen schon beim Progammstart zu konfigurieren.
+Sie können den Server auch mit den optionalen Parametern `java Server RTSP-Port lossRate groupSize` starten um die FEC-Optionen schon beim Programmstart zu konfigurieren.
 
-Der Server besitzt zwei Schieberegler welche den Kanal beeinflussen und die FEC-Gruppengröße festlegen.
+Der Server besitzt zwei Schieberegler die den Kanal beeinflussen und die FEC-Gruppengröße festlegen.
 * oben: genutzte FEC-Gruppengröße (2-48)
 * unten: erzeugte Paketverlustrate (0-100%) 
 
@@ -61,13 +61,13 @@ Angezeigt werden in der GUI weiterhin die aktuell gesendete Bildnummer (send fra
 
 ### Client
 Der Start des Clients erfolgt mittels Übergabe der URL: `java Client rtsp://server:port/video_file`. 
-Der Server sucht automatisch nach dem angegebenen Video in seinen Ordner videos. Ein Verzeichnis ist nicht anzugeben!
+Der Server sucht automatisch nach dem angegebenen Video in seinem Ordner videos. Ein Verzeichnis ist nicht anzugeben!
 Bei Angabe des Videos mit dem Namen webcam wird der Server eine angeschlossene Webcam anstatt einer Datei verwenden.
 
-Die in der Kommandozeile angegebene URL werden in der GUI in einem Eingabefeld angezeigt und kann dort auch verändert werden.
+Die in der Kommandozeile angegebene URL wird in der GUI in einem Eingabefeld angezeigt und kann dort auch verändert werden.
 
 Verschlüsselung:  
-wird z.Z.  nicht verwendet und sollte somit auf keine gesetzt bleiben. 
+wird zurzeit nicht verwendet und sollte somit auf keine gesetzt bleiben. 
 
 Felder:
 * FEC: FEC wird im Client ausgewertet oder nicht
@@ -78,7 +78,7 @@ Anzeige (Zeile):
 1. RTSP-Zustand  
 Pufferfüllstand des Clients (in Bildern und korrespondierenden RTPs)
 2. aktuell empfangenes RTP-Paket  
-Summe der empfangenen RTPs
+Gesamtzahl der empfangenen RTP-Pakete
 3. aktuell bearbeitete RTP-Nummer und Anzahl der bisher verlorenen RTPs  
 aktuelle Bildnummer und Anzahl der unvollständigen und fehlenden Bilder
 4. Anzahl wiederhergestellter und nicht wiederhergestellter RTPs beim Einsatz von FEC  
@@ -215,7 +215,7 @@ Im RTSP-Protokoll hat jede Session einen bestimmten Zustand. Sie müssen den Zus
 ![RTP-Zustände](images/rtp-state.gif)
 
 ## 4. Server
-Auf Serverseite muss das Einbetten der Videodaten in die RTP-Pakete erfolgen. Die beinhaltet das Erzeugen des Paketes, Setzen der Headerfelder und setzen der Payload. Für Informationen zur Bitmanipulation in Java siehe **Vorlesungsfolien zu RTP**.
+Auf Serverseite muss das Einbetten der Videodaten in die RTP-Pakete erfolgen. Dies beinhaltet das Erzeugen des Paketes, Setzen der Headerfelder und Setzen der Payload. Für Informationen zur Bitmanipulation in Java siehe **Vorlesungsfolien zu RTP**.
 Im Beleg wird nur eine Quelle genutzt (CC=0), das Feld CSRC existiert also nicht. Die Länge des RTP-Headers beträgt demzufolge 12 Byte.
 
 <!-- ![RTP-Header](images/rtp-header.png)   -->
