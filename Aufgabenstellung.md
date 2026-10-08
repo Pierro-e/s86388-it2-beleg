@@ -31,6 +31,9 @@ Im weiteren wird davon ausgegangen, dass die IDE Intellij verwendet wird.
   * Abhängigkeiten:
     * Webcam: com.github.sarxos:webcam-capture:0.3.12
     * JUnit:  org.junit.jupiter:junit-jupiter:5.9.0
+  * Hinweis: Falls das Modul für die Webcam nicht gefunden wird, können Sie dieses auch manuell integrieren:
+    * Download und entpacken: [Github](https://github.com/sarxos/webcam-capture/releases/download/webcam-capture-parent-0.3.12/webcam-capture-0.3.12-dist.zip)
+    * Add (+) -> JARs  -> wählen Sie das entsprechende JAR und bestätigen Sie mit OK
 3. Sie erstellen die "leeren" Klassen `rtsp.Rtsp`, `rtp.RtpPacket`, `rtp.FecHandler` und `JpegDisplay` und leiten diese aus den abstrakten Klassen `rtsp.RtspDemo`, `rtp.RtpPacketDemo`, `FecHandlerDemo` und `JpegDisplayDemo` ab (Stichwort `extends`).  Das Projekt sollte danach kompilierbar und ausführbar sein.  
 Unter einigen IDEs z.B. IntelliJ können Sie die Klassenrümpfe automatisch erstellen lassen mittels: Generate Constructors sowie implement Methods
 4. Sie konfigurieren die Kommandozeilenparameter für Client und Server wie in der [Projektbeschreibung](Projektbeschreibung.md#2.-programmstart) beschrieben.
