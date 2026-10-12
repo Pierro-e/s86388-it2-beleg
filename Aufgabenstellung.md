@@ -29,9 +29,10 @@ Im weiteren wird davon ausgegangen, dass die IDE Intellij verwendet wird.
   * Projekt-Structure -> Modules -> Reiter Dependencies
   * Add (+) -> 2 Library -> Maven
   * Markierung Downloads to lib
-  * Abhängigkeiten:
-    * Webcam: com.github.sarxos:webcam-capture:0.3.12
-    * JUnit:  org.junit.jupiter:junit-jupiter:5.9.0
+  * Abhängigkeiten (Webcam, Treiber, JUnit):
+    * com.github.sarxos:webcam-capture:0.3.12
+    * io.github.eduramiba:webcam-capture-driver-native:1.3.1
+    * org.junit.jupiter:junit-jupiter:5.9.0
   * Hinweis: Falls das Modul für die Webcam nicht gefunden wird, können Sie dieses auch manuell integrieren:
     * Download und entpacken: [Github](https://github.com/sarxos/webcam-capture/releases/download/webcam-capture-parent-0.3.12/webcam-capture-0.3.12-dist.zip)
     * Add (+) -> JARs  -> wählen Sie das entsprechende JAR und bestätigen Sie mit OK
