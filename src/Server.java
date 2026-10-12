@@ -13,6 +13,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.imageio.ImageIO;
 import com.github.sarxos.webcam.Webcam;
+import com.github.eduramiba.webcamcapture.drivers.NativeDriver;
 import rtp.RtpHandler;
 import rtsp.Rtsp;
 import utils.CustomLoggingHandler;
@@ -112,10 +113,18 @@ public class Server implements ActionListener {
           }
           // use webcam or file?
           if (rtsp.getVideoFileName().endsWith("webcam")) {
+            Webcam.setDriver(new NativeDriver() );
             webcam = Webcam.getDefault();
+            if (webcam != null) {
+              System.out.println("Kamera erkannt: " + webcam.getName());
+            } else {
+              System.out.println("Keine Kamera gefunden!");
+            }
+            
             webcam.close();
             webcam.setViewSize(new Dimension(640,480));
             webcam.open();
+            
           } else { // File
             // check for file existence
             File f = new File(VideoDir + rtsp.getVideoFileName());
