@@ -20,7 +20,7 @@ Die Aufgaben beziehen sich auf den Beleg Videostreaming für das Modul Internett
 * Fehlersuche in Client-/Serveranwendungen
 
 ## Aufgaben
-Im weiteren wird davon ausgegangen, dass die IDE Intellij verwendet wird.
+Im weiteren wird davon ausgegangen, dass die IDE Intellij verwendet wird.  
 **Hinweis:** Zukünftige Aufgaben können sich noch ändern, kontrollieren Sie dazu vor jeder Aufgabe das Upstream-Repository.
 
 ### 0. Vorarbeiten
