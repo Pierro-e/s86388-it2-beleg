@@ -16,6 +16,9 @@ Die Fakultät Informatik stellt Ihnen (unabhängig vom RZ) ein Homeverzeichnis b
 Repository lokal klonen  
 `git clone https://github.com/HTWDD-RN/"Name des zu klonenden Repositories"`
 
+Bei einem privaten Repository müssen Sie sich authentifizieren. Sie müssen statt eines Passwortes ein Token für den Zugriff nutzen, siehe [hier](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).  
+Am einfachsten sind i.d.R. jedoch SSH-Keys.
+
 Wechsel in das angelegte lokale Repository  
 `cd "Name des Repositories"`
 
