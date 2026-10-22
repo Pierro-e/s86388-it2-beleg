@@ -7,6 +7,9 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
     </content>
     <orderEntry type="inheritedJdk" />
+    <orderEntry type="library" exported="" name="github.sarxos.webcam.capture" level="project" />
+    <orderEntry type="library" exported="" name="io.github.eduramiba.webcam.capture.driver.native" level="project" />
+    <orderEntry type="library" exported="" name="junit.jupiter" level="project" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

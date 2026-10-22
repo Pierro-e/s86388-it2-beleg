@@ -104,7 +104,6 @@ abstract class RtspDemo {
     connectServer();
   }
 
-
   /**
    * Constructor for Server
    * @param RTSPBufferedReader  Stream for RTSP-Requests
