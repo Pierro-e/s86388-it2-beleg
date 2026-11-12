@@ -1,7 +1,10 @@
 package rtsp;
 
+import video.VideoMetadata;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.io.IOException;
 
@@ -148,6 +151,65 @@ public class Rtsp extends RtspDemo{
                     "RTSP-Anfrage konnte nicht machen boyyyy: " + request_type, e);
         }
 
+    }
+
+    @Override
+    public String getDescribe(VideoMetadata meta, int RTP_dest_port) {
+        StringWriter rtspHeader = new StringWriter();
+        StringWriter rtspBody = new StringWriter();
+
+        // Write the body first, so we can get the size later
+
+        // Session description
+        // v=  (protocol version)
+        // o=  (owner/creator and session identifier).
+        // s=  (session name)
+        rtspBody.write("v=0" + CRLF);
+        rtspBody.write("o=- 0 0 IN IP4 0.0.0.0" + CRLF);
+        rtspBody.write("s=RTSP-Streaming" + CRLF);
+        rtspBody.write("c=IN IP4 0.0.0.0=" + CRLF);
+
+        // Time description
+        // t= (time the session is active)
+        rtspBody.write("t=0 0" + CRLF);
+        rtspBody.write("a=control:*" + CRLF);
+        // Stream control
+        //
+
+        // Media description
+        // m=  (media name and transport address)
+        rtspBody.write("m=video " + RTP_dest_port + " RTP/AVP 26"  + CRLF);         // 26 = MJPEG  RTP_dest_port Vorgeschlagener Port von S-seite aus
+            rtspBody.write("a=control:trackID=0" + CRLF);
+            rtspBody.write("a=rtpmap:" + MJPEG_TYPE + " JPEG/90000" + CRLF);
+        // rtspBody.write("a=mimetype:string;\"video/mjpeg\"" + CRLF);
+
+
+
+        rtspBody.write("m=video " + RTP_dest_port + " RTP/AVP 96" + CRLF);          // 96 =  H264
+            rtspBody.write("a=control:trackID=1" + CRLF);
+            rtspBody.write("a=rtpmap:96 H264/90000" + CRLF);
+
+
+        // Audio ist not supported yet
+        rtspBody.write("m=audio " + RTP_dest_port + " RTP/AVP " + "0" + CRLF);
+            rtspBody.write("a=control:trackID=2" + CRLF);
+            rtspBody.write("a=rtpmap:" + "0" + " G711/8000" + CRLF);
+
+
+        rtspBody.write("a=framerate:" + meta.getFramerate() + CRLF);
+        rtspBody.write("a=range:npt=0-");
+        if (meta.getDuration() > 0.0) {
+            rtspBody.write(Double.toString(meta.getDuration()));
+        }
+        rtspBody.write(CRLF);
+
+        rtspHeader.write("Cseq: " + RTSPSeqNb + CRLF);
+        rtspHeader.write("Content-Base: " + VideoFileName + CRLF);
+        rtspHeader.write("Content-Type: " + "application/sdp" + CRLF);
+        rtspHeader.write("Content-Length: " + rtspBody.toString().length() + CRLF);
+        rtspHeader.write(CRLF);
+
+        return rtspHeader + rtspBody.toString();
     }
 }
 
