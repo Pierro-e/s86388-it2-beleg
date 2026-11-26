@@ -17,11 +17,8 @@ public class RtpPacket extends RtpPacketDemo{
 
     @Override
     void setRtpHeader() {
-        header[0] = (byte) (((Version & 0x03) << 6)
-                | ((Padding & 0x01) << 5)
-                | ((Extension & 0x01) << 4)
-                | (CC & 0x0F));
-        header[1] = (byte) (((Marker & 0x01) << 7) | (PayloadType & 0x7F));
+        header[0] = (byte) ((Version << 6) | (Padding << 5) | (Extension << 4) | CC);
+        header[1] = (byte) ((Marker << 7) | (PayloadType));
 
         header[2] = (byte) (SequenceNumber >>> 8);
         header[3] = (byte) SequenceNumber;
